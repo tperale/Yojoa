@@ -1,7 +1,7 @@
 SRC=./src/
 
 all:
-	  make -f ${SRC}Makefile all
+	  make -C ${SRC} all
 
 clean:
-	  make -f ${SRC} clean
+	  make -C ${SRC} clean
