@@ -1,0 +1,10 @@
+int tiny(){
+  int foo;
+
+  foo = 1;
+
+  // IF LPAR exp RPAR statement
+  if (foo) {
+    foo = 0;
+  }
+}
