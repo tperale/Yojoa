@@ -56,3 +56,8 @@ dkms.conf
 
 
 # End of https://www.gitignore.io/api/c
+
+src/Lexer.c
+src/Lexer.h
+src/Parser.h
+src/Parser.c
