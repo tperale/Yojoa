@@ -61,3 +61,4 @@ src/Lexer.c
 src/Lexer.h
 src/Parser.h
 src/Parser.c
+src/tiny
