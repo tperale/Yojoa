@@ -1,14 +1,16 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#define TOKEN(x) (yyval.token = x)
+#include "AST.h"
+#include "ASTDeclaration.h"
+#include "ASTStatement.h"
+#include "ASTExpression.h"
+#include "Parser.h"
+#define TOKEN(x) (yylval.token = x)
 %}
 
 %option outfile="Lexer.c" header-file="Lexer.h"
-
-alpha   [A-Za-z]
-digit   [0-9]
-alphanum  [A-Za-z0-9]
+%option noyywrap nounput noinput
 
 %%
 
@@ -44,25 +46,8 @@ alphanum  [A-Za-z0-9]
 "!="               return TOKEN(NEQUAL);
 "!"                return TOKEN(NOT);
 
-"'{alpha}'"       {
-                   yylval.char = yytext;
-                   return TOKEN(QCHAR);
-                   }
-
-{alpha}{alphanum}* {
-                   yylval.strvalue = strdup(yytext);
-                   return TOKEN(NAME);
-                   }
-
-{digit}+           {
-                   yylval.value = atoi(yytext);
-                   return TOKEN(NUMBER);
-                   }
-
-.                  yyerror("Can't parse this token"); yyterminate();
+"'[a-zA-Z_]'"          yylval.qchar = yytext[0]; return TOKEN(QCHAR);
+[a-zA-Z_][a-zA-Z0-9_]* yylval.string = strdup(yytext); return TOKEN(NAME);
+[0-9]+                 yylval.value = atoi(yytext); return TOKEN(NUMBER);
+.                      fprintf(stderr, "Can't parse this token\n"); yyterminate();
 %%
-
-int yyerror(const char *msg) {
-  fprintf(stderr, "Error:%s\n", msg);
-  return 0;
-}

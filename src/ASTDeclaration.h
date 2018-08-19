@@ -24,6 +24,8 @@
 //    +-----------+ + name: Identifier         |
 //                +----------------------------+
 
+struct ASTBlock;
+
 /**
  * @brief Base data structure used for declaration.
  */
@@ -31,19 +33,23 @@ typedef struct {
   ASTNode node;
 } ASTDeclaration;
 
-typedef struct {
+typedef struct ASTDeclarationVariable {
   ASTDeclaration declaration;
-  ASTIdentifier* type;
-  char* name;
+  ASTType type;
+  ASTIdentifier* name;
 } ASTDeclarationVariable;
+
+void ASTDeclarationVariable_free(ASTDeclarationVariable* self);
+ASTDeclarationVariable* ASTDeclarationVariable_create(int type, ASTIdentifier* name);
 
 typedef struct {
   ASTDeclaration declaration;
   ASTDeclarationVariable* name;
-  ASTDeclarationVariable** parameters;
-  ASTBlock* block;
+  ASTDeclarationVariable** parameters; // This list should be "NULL" terminated.
+  struct ASTBlock* block;
 } ASTDeclarationFunction;
 
-ASTDeclarationFunction* ASTDeclarationFunction_create(char* type, char* name, ASTDeclarationVariable* parameters, ASTBlock* block);
+void ASTDeclarationFunction_free(ASTDeclarationFunction* self);
+ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ASTDeclarationVariable** parameters, struct ASTBlock* block);
 
 #endif

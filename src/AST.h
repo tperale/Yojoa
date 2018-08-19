@@ -49,6 +49,8 @@
 //      | + value: Expression
 //      +-------------------+
 
+typedef int ASTType;
+
 /**
  * @brief The most basic expression structure.
  */

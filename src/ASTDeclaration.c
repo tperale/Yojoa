@@ -1,21 +1,45 @@
 #include "ASTDeclaration.h"
+#include <stddef.h>
+#include <stdlib.h>
 
 /**
  * typedef struct {
  *   ASTDeclaration declaration;
- *   ASTTypedIdentifier id;
- *   ASTDeclarationVariable* parameters;
+ *   ASTType type;
+ *   ASTIdentifier* name;
+ * } ASTDeclarationVariable;
+*/
+void ASTDeclarationVariable_free(ASTDeclarationVariable* self) {
+  ASTIdentifier_free(self->name);
+
+  free(self);
+}
+
+ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType type, ASTIdentifier* name) {
+  ASTDeclarationVariable* result = malloc(sizeof(ASTDeclarationVariable));
+
+  result->type = type;
+  result->name = name;
+
+  return result;
+}
+
+/**
+ * typedef struct {
+ *   ASTDeclaration declaration;
+ *   ASTDeclarationVariable* name;
+ *   ASTDeclarationVariable** parameters;
  *   ASTBlock block;
  * } ASTDeclarationFunction;
  */
 void ASTDeclarationFunction_free(ASTDeclarationFunction* self) {
-  // ASTTypedIdentifier_free(self->id);
+  ASTDeclarationVariable_free(self->name);
 
-  // TODO have to see if it really has to be of ASTDeclarationVariable type. But ok it should be fine because the DeclarationVariable is basically type + name.
-  // ASTDeclarationVariable_free(self->parameters)
-  // ASTBlock_free(self->block);
+  for (int i = 0; self->parameters != NULL; ++i) {
+    ASTDeclarationVariable_free(self->parameters[i]);
+  }
+  // TODO ASTBlock_free(self->block);
   free(self);
-  *self = NULL;
 }
 
 ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ASTDeclarationVariable** parameters, ASTBlock* block) {

@@ -4,8 +4,6 @@
 #include "ASTDeclaration.h"
 #include "ASTExpression.h"
 
-extern ASTDeclarationVariable;
-
 //                +------------------+--------------------+
 //                |                                       |
 //                |            Statement                  |
@@ -42,6 +40,8 @@ extern ASTDeclarationVariable;
 //      | + value: Expression
 //      +-------------------+
 
+struct ASTDeclarationVariable;
+
 /**
  * @brief Base data structure used for statements.
  */
@@ -49,9 +49,9 @@ typedef struct {
   ASTNode node;
 } ASTStatement;
 
-typedef struct {
+typedef struct ASTBlock {
   ASTStatement statement;
-  ASTDeclarationVariable** variables;
+  struct ASTDeclarationVariable** variables;
   ASTStatement** statements;
 } ASTBlock;
 

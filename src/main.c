@@ -2,10 +2,6 @@
  * main.c file
  */
 
-#include "Expression.h"
-#include "Parser.h"
-#include "Lexer.h"
-
 #include <stdio.h>
 
 // int yyparse(SExpression **expression, yyscan_t scanner);

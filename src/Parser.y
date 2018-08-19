@@ -26,7 +26,11 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
   ASTIdentifier** identifier_list;
   ASTDeclarationVariable** var_decl_list;
   ASTStatement** statement_list;
+  ASTType type_decl;
   int token;
+  char* string;
+  char qchar;
+  int value;
 }
 
 /**
@@ -34,7 +38,7 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
  */
 %token <string> NAME              // A String starting with a letter followed by 0 or more letters, digits or undercores.
 %token <value> NUMBER         // Is a string of digits
-%token <char> QCHAR            // Is a character between single quotes
+%token <qchar> QCHAR            // Is a character between single quotes
 
 %token <token> INT CHAR                   // Type tokens
 %token <token> IF ELSE RETURN SEMICOLON COMMA WRITE READ LENGTH WHILE
@@ -57,6 +61,7 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
 %type <expression> lexp exp
 %type <identifier_list> pars
 %type <identifier> var
+%type <type_decl> type
 
 /**
  *
@@ -80,7 +85,7 @@ declaration                       // The program body should only be made of fun
 		;
 
 fun_declaration                   //
-	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $2, $4, $6) }
+	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5); }
 		;
 
 formal_pars                            // formal_pars is the declaration of arguments in parentheses
@@ -99,17 +104,17 @@ var_declarations                   // How to do a variable declaration
 		;
 
 var_declaration                   // How to do a variable declaration
-    : var_identifier SEMICOLON // { $$ = $1 } // ex: int foo;
+    : var_identifier SEMICOLON { $$ = $1; } // ex: int foo;
 		;
 
 var_identifier                    // A simple way to identify combination of variable type and name
-    : type NAME // { $$ = ASTDeclarationVariable_create($1, $2) }
+    : type var { $$ = ASTDeclarationVariable_create($1, $2); }
     ;
 
 type                              // Their are only two primitive data types (char, int) and the composed data types
-		: INT
-		| CHAR
-		| type LBRACK exp RBRACK // array type (eg: int[4])
+		: INT { $$ = (ASTType) INT; }
+		| CHAR { $$ = (ASTType) CHAR; }
+		/* | type LBRACK exp RBRACK // array type (eg: int[4]) */
 		;
 
 statements                        // Statements express how multiple statement need to be combined
@@ -124,7 +129,7 @@ statement                         // Statement express possible actions you can 
 		| WHILE LPAR exp RPAR statement
 		| lexp ASSIGN exp // assignment
 		| RETURN exp // return statement
-		| NAME LPAR pars RPAR	// function call
+		| NAME LPAR pars RPAR	// function call // TODO free "NAME"
 		| block
 		| WRITE exp
 		| READ lexp
@@ -141,7 +146,7 @@ exp
 		| unop exp // ex: !foo TODO: Function call for calculation
 		| LPAR exp RPAR // ex: (foo)
 		| NUMBER // ex: 1
-		| NAME LPAR pars RPAR	// function call ex: foo(bar, 2)
+		| NAME LPAR pars RPAR	// function call ex: foo(bar, 2) // TODO free "NAME"
 		| QCHAR // Just a charachter ex: 'c'
 		| LENGTH lexp	// size of an array ex: length foo
 		;
@@ -169,6 +174,6 @@ pars                            // Content of argument comma separated in functi
 		;
 
 var                            // variable reference (just a name)
-		: NAME
+		: NAME { $$ = ASTIdentifier_create($1); free($1); }
     ;
 %%
