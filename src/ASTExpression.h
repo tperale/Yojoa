@@ -5,7 +5,7 @@
 #ifndef __EXPRESSION_H__
 #define __EXPRESSION_H__
 
-#include "Parser.h"
+#include "AST.h"
 
 //       +-------------------------------+
 //       |                               |
@@ -68,7 +68,7 @@ typedef struct {
 } ASTOperator;
 
 typedef struct {
-  char[64] value;
+  char value[64];
 } ASTIdentifier;
 
 typedef struct {
@@ -77,4 +77,5 @@ typedef struct {
   ASTExpression* arguments;
 } ASTFunctionCall;
 
+// TODO ASTArrayAccessor for array type (eg: <varname>[<number>] or for array declaration int[4])
 #endif

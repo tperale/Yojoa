@@ -1,50 +1,66 @@
 %{
-#include "Expression.h"
-#include "Parser.h"
-#include "Lexer.c"
+#include <stdio.h>
+#include "AST.h"
+#include "ASTDeclaration.h"
+#include "ASTStatement.h"
+#include "ASTExpression.h"
 
-int yyerror(SExpression **expression, yyscan_t scanner, const char *msg) {
-    // Add error handling routine as needed
-}
-
+extern int yylex();
+void yyerror(const char *s) { printf("ERROR: %sn", s); }
 %}
-
-%code requires {
-
-#ifndef YY_TYPEDEF_YY_SCANNER_T
-#define YY_TYPEDEF_YY_SCANNER_T
-typedef void* yyscan_t;
-#endif
-
-}
 
 %output  "Parser.c"
 %defines "Parser.h"
 
-%define api.pure
-%lex-param   { yyscan_t scanner }
-%parse-param { SExpression **expression }
-%parse-param { yyscan_t scanner }
-
+/**
+ * Value type specification
+ */
 %union {
-    int value;
-    char charvalue;
-    char* strvalue;
-    ASTNode* expression;
+  // TODO add the *_create(**) func declaration ?
+  ASTDeclarationFunction* fun_decl;
+  ASTDeclarationVariable* var_decl;
+  ASTBlock* block;
+  ASTStatement* statement;
+  ASTExpression* expression;
+  ASTIdentifier* identifier;
+  ASTIdentifier** identifier_list;
+  ASTDeclarationVariable** var_decl_list;
+  ASTStatement** statement_list;
+  int token;
 }
 
-%token <value> NAME              // A String starting with a letter followed by 0 or more letters, digits or undercores.
+/**
+ *
+ */
+%token <string> NAME              // A String starting with a letter followed by 0 or more letters, digits or undercores.
 %token <value> NUMBER         // Is a string of digits
-%token <value> QCHAR            // Is a character between single quotes
+%token <char> QCHAR            // Is a character between single quotes
 
-%token INT CHAR                   // Type tokens
-%token IF ELSE RETURN SEMICOLON COMMA WRITE READ LENGTH WHILE
+%token <token> INT CHAR                   // Type tokens
+%token <token> IF ELSE RETURN SEMICOLON COMMA WRITE READ LENGTH WHILE
 
-%token LPAR RPAR
-%token LBRACE RBRACE
-%token LBRACK RBRACK
-%token ASSIGN
+%token <token> LPAR RPAR
+%token <token> LBRACE RBRACE
+%token <token> LBRACK RBRACK
+%token <token> ASSIGN
 
+/**
+ * Type of the nonterminal symbol specification
+ */
+%type <fun_decl> fun_declaration
+%type <var_decl_list> formal_pars var_declarations
+%type <var_decl> var_declaration var_identifier
+%type <statement> statement
+%type <statement_list> statements
+%type <block> block
+%type <token> binop unop
+%type <expression> lexp exp
+%type <identifier_list> pars
+%type <identifier> var
+
+/**
+ *
+ */
 %left PLUS TIMES DIVIDE           // Calculus binary operators
 %nonassoc MINUS                   // Could be either binary or unary
 %left EQUAL GREATER LESS NEQUAL   // Logic binary operators
@@ -64,17 +80,13 @@ declaration                       // The program body should only be made of fun
 		;
 
 fun_declaration                   //
-	  : type NAME LPAR formal_pars RPAR block
+	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $2, $4, $6) }
 		;
 
-formal_pars                       // formal_pars is the declaration of arguments in parentheses
-    : formal_par COMMA formal_pars // Can be either multiple declaration separated by commas
-    | formal_par // a simple declaration
-		| // or no declaration
-		;
-
-formal_par                        // The argument type declaration in parantheses
-  	: type NAME
+formal_pars                            // formal_pars is the declaration of arguments in parentheses
+    : var_identifier COMMA formal_pars // Can be either multiple declaration separated by commas
+    | var_identifier                   // a simple declaration
+		|                                  // or no declaration
 		;
 
 block                             // The content of a function, if, while. Variable declarations are always done on the top of the block.
@@ -87,13 +99,17 @@ var_declarations                   // How to do a variable declaration
 		;
 
 var_declaration                   // How to do a variable declaration
-    : type NAME SEMICOLON // ex: int foo;
+    : var_identifier SEMICOLON // { $$ = $1 } // ex: int foo;
 		;
+
+var_identifier                    // A simple way to identify combination of variable type and name
+    : type NAME // { $$ = ASTDeclarationVariable_create($1, $2) }
+    ;
 
 type                              // Their are only two primitive data types (char, int) and the composed data types
 		: INT
 		| CHAR
-		| type LBRACK exp RBRACK // array type
+		| type LBRACK exp RBRACK // array type (eg: int[4])
 		;
 
 statements                        // Statements express how multiple statement need to be combined

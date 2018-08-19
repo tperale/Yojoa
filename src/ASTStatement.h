@@ -4,6 +4,8 @@
 #include "ASTDeclaration.h"
 #include "ASTExpression.h"
 
+extern ASTDeclarationVariable;
+
 //                +------------------+--------------------+
 //                |                                       |
 //                |            Statement                  |
@@ -49,30 +51,32 @@ typedef struct {
 
 typedef struct {
   ASTStatement statement;
-  ASTDeclarationVariable* variables;
-  ASTStatement* statements;
+  ASTDeclarationVariable** variables;
+  ASTStatement** statements;
 } ASTBlock;
 
 typedef struct {
   ASTStatement statement;
-  ASTIdentifier lvalue;
-  ASTExpression rvalue;
+  ASTIdentifier* lvalue;
+  ASTExpression* rvalue;
 } ASTStatementAssignment;
 
 typedef struct {
   ASTStatement statement;
-  ASTExpression condition;
-  ASTBlock if_block;
-  ASTBlock else_block;
+  ASTExpression* condition;
+  ASTBlock* if_block;
+  ASTBlock* else_block;
 } ASTStatementCondition;
 
 typedef struct {
   ASTStatement statement;
-  ASTExpression condition;
-  ASTBlock content;
+  ASTExpression* condition;
+  ASTBlock* content;
 } ASTStatementLoop;
 
 typedef struct {
   ASTStatement statement;
-  ASTExpression value;
+  ASTExpression* value;
 } ASTStatementReturn;
+
+#endif
