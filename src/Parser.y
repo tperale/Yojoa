@@ -60,8 +60,8 @@ ASTProgram* program_struct;
 %type <array> fun_declarations formal_pars var_declarations statements pars
 %type <block> block
 %type <token> binop unop
-%type <expression> lexp exp
-%type <identifier> var
+%type <expression> exp
+%type <identifier> lexp var
 %type <type_decl> type
 
 /**
@@ -124,24 +124,19 @@ statements                        // Statements express how multiple statement n
 		;
 
 statement                         // Statement express possible actions you can do on the programming language
-	  : IF LPAR exp RPAR statement
-		| IF LPAR exp RPAR statement ELSE statement
-		| WHILE LPAR exp RPAR statement
-		| lexp ASSIGN exp // assignment
-		| RETURN exp // return statement
-		| NAME LPAR pars RPAR	// function call // TODO free "NAME"
-		| block
-		| WRITE exp
-		| READ lexp
-		;
-
-lexp                              // left expression are either a variable name or variable name array access
-		: var // ex: foo TODO: function call for variable lookup
-		| lexp LBRACK exp RBRACK	// ex: foo[2] TODO:
+	  : IF LPAR exp RPAR statement                 { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, NULL); }
+		| IF LPAR exp RPAR statement ELSE statement  { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, $7); }
+		| WHILE LPAR exp RPAR statement              { $$ = (ASTStatement*) ASTStatementLoop_create($3, $5); }
+		| lexp ASSIGN exp                            { $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3); } // assignment
+		| RETURN exp                                 { $$ = (ASTStatement*) ASTStatementReturn_create($2); } // return statement
+		| block                                      { $$ = (ASTStatement*) $1; }
+		// TODO | WRITE exp
+		// TODO | READ lexp
 		;
 
 exp
 		: lexp
+		| NAME LPAR pars RPAR	// function call // TODO free "NAME"
 		| exp binop exp // ex: foo == bar TODO: Function call for calculation
 		| unop exp // ex: !foo TODO: Function call for calculation
 		| LPAR exp RPAR // ex: (foo)
@@ -149,6 +144,11 @@ exp
 		| NAME LPAR pars RPAR	// function call ex: foo(bar, 2) // TODO free "NAME"
 		| QCHAR // Just a charachter ex: 'c'
 		| LENGTH lexp	// size of an array ex: length foo
+		;
+
+lexp                              // left expression are either a variable name or variable name array access
+		: var     { $$ = $1; } // ex: foo
+		// TODO | lexp LBRACK exp RBRACK	// ex: foo[2]
 		;
 
 binop                           // List of the binary operators tokens

@@ -51,10 +51,12 @@ typedef struct {
 } ASTStatement;
 
 typedef struct ASTBlock {
+  ASTStatement statement;
   ArrayList* variables; // containing ASTDeclarationVariable
   ArrayList* statements; // containing ASTStatement
 } ASTBlock;
 
+void ASTBlock_free(void*);
 ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements);
 
 typedef struct {
@@ -63,22 +65,34 @@ typedef struct {
   ASTExpression* rvalue;
 } ASTStatementAssignment;
 
-typedef struct {
-  ASTStatement statement;
-  ASTExpression* condition;
-  ASTBlock* if_block;
-  ASTBlock* else_block;
-} ASTStatementCondition;
+void ASTStatementAssignment_free(void* self);
+ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, ASTExpression* rvalue);
 
 typedef struct {
   ASTStatement statement;
   ASTExpression* condition;
-  ASTBlock* content;
+  ASTStatement* if_block;
+  ASTStatement* else_block;
+} ASTStatementCondition;
+
+void ASTStatementCondition_free(void* _self);
+ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block);
+
+typedef struct {
+  ASTStatement statement;
+  ASTExpression* condition;
+  ASTStatement* content;
 } ASTStatementLoop;
+
+void ASTStatementLoop_free(void* _self);
+ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* content);
 
 typedef struct {
   ASTStatement statement;
   ASTExpression* value;
 } ASTStatementReturn;
+
+void ASTStatementReturn_free(void* _self);
+ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value);
 
 #endif
