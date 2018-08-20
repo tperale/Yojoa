@@ -9,7 +9,8 @@
  *   ASTIdentifier* name;
  * } ASTDeclarationVariable;
 */
-void ASTDeclarationVariable_free(ASTDeclarationVariable* self) {
+void ASTDeclarationVariable_free(void* _self) {
+  ASTDeclarationVariable* self = (ASTDeclarationVariable*) _self;
   ASTIdentifier_free(self->name);
 
   free(self);
@@ -20,6 +21,8 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType type, ASTIdentifie
 
   result->type = type;
   result->name = name;
+
+  result->declaration.node.free = ASTDeclarationVariable_free;
 
   return result;
 }
@@ -32,7 +35,8 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType type, ASTIdentifie
  *   ASTBlock block;
  * } ASTDeclarationFunction;
  */
-void ASTDeclarationFunction_free(ASTDeclarationFunction* self) {
+void ASTDeclarationFunction_free(void* _self) {
+  ASTDeclarationFunction* self = (ASTDeclarationFunction*) _self;
   ASTDeclarationVariable_free(self->name);
   self->parameters->free(self->parameters);
   // TODO ASTBlock_free(self->block);
@@ -45,6 +49,8 @@ ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* na
   result->name = name;
   result->parameters = parameters;
   result->block = block;
+
+  result->declaration.node.free = ASTDeclarationFunction_free;
 
   return result;
 }
