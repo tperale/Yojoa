@@ -6,6 +6,7 @@
 #define __EXPRESSION_H__
 
 #include "AST.h"
+#include "ArrayList.h"
 
 //       +-------------------------------+
 //       |                               |
@@ -50,35 +51,46 @@ typedef struct {
   ASTExpression expression;
   int value;
 } ASTInteger;
+void ASTInteger_free(void* _self);
+ASTInteger* ASTInteger_create(int value);
 
 typedef struct {
   ASTExpression expression;
   char value;
 } ASTChar;
+void ASTChar_free(void* _self);
+ASTChar* ASTChar_create(char value);
 
 typedef struct {
   ASTExpression expression;
   char* value;
 } ASTString;
+void ASTString_free(void* _self);
+ASTString* ASTString_create(char* value);
 
 typedef struct {
   ASTExpression expression;
   ASTExpression* lvalue;
   ASTExpression* rvalue;
+  int operator_token;
 } ASTOperator;
+void ASTOperator_free(void* _self);
+ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, int operator_token);
 
 typedef struct {
+  ASTExpression expression;
   char value[64];
 } ASTIdentifier;
-
-void ASTIdentifier_free(ASTIdentifier* self);
+void ASTIdentifier_free(void* self);
 ASTIdentifier* ASTIdentifier_create(char* value);
 
 typedef struct {
   ASTExpression expression;
-  ASTIdentifier name;
-  ASTExpression* arguments;
+  ASTIdentifier* name;
+  ArrayList* arguments;
 } ASTFunctionCall;
+void ASTFunctionCall_free(void* _self);
+ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* arguments);
 
 // TODO ASTArrayAccessor for array type (eg: <varname>[<number>] or for array declaration int[4])
 #endif

@@ -136,18 +136,17 @@ statement                         // Statement express possible actions you can 
 
 exp
 		: lexp
-		| NAME LPAR pars RPAR	// function call // TODO free "NAME"
-		| exp binop exp // ex: foo == bar TODO: Function call for calculation
-		| unop exp // ex: !foo TODO: Function call for calculation
-		| LPAR exp RPAR // ex: (foo)
-		| NUMBER // ex: 1
-		| NAME LPAR pars RPAR	// function call ex: foo(bar, 2) // TODO free "NAME"
-		| QCHAR // Just a charachter ex: 'c'
-		| LENGTH lexp	// size of an array ex: length foo
+		| var LPAR pars RPAR	{ $$ = (ASTExpression*) ASTFunctionCall_create($1, $3); } // function call
+		| exp binop exp       { $$ = (ASTExpression*) ASTOperator_create($1, $3, $2); } // (eg: foo == bar)
+		| unop exp            { $$ = (ASTExpression*) ASTOperator_create($2, NULL, $1); }     // (eg: !foo)
+		| LPAR exp RPAR       { $$ = $2; }                                              // (eg: (foo))
+		| NUMBER              { $$ = (ASTExpression*) ASTInteger_create($1); }          // (eg: 2)
+		| QCHAR               { $$ = (ASTExpression*) ASTChar_create($1); }              // Just a charachter (eg: 'c')
+		// TODO | LENGTH lexp	        { }                                               // size of an array (eg: length foo)
 		;
 
 lexp                              // left expression are either a variable name or variable name array access
-		: var     { $$ = $1; } // ex: foo
+		: var     { $$ = $1; } // (eg: foo) // TODO symbol verification
 		// TODO | lexp LBRACK exp RBRACK	// ex: foo[2]
 		;
 
@@ -170,7 +169,7 @@ unop                            // List of the binary operators tokens
 pars                            // Content of argument comma separated in function call parentheses
 		: exp COMMA pars
     | exp
-		| // Empty
+		|                           // Empty
 		;
 
 var                            // variable reference (just a name)
