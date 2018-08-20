@@ -47,8 +47,8 @@
 "!="               return TOKEN(NEQUAL);
 "!"                return TOKEN(NOT);
 
-"'[a-zA-Z_]'"          yylval.qchar = yytext[0]; return TOKEN(QCHAR);
-[a-zA-Z_][a-zA-Z0-9_]* yylval.string = strdup(yytext); return TOKEN(NAME);
-[0-9]+                 yylval.value = atoi(yytext); return TOKEN(NUMBER);
+"'[a-zA-Z_]'"          yylval.qchar = yytext[0]; return QCHAR;
+[a-zA-Z_][a-zA-Z0-9_]* yylval.string = strdup(yytext); return NAME;
+[0-9]+                 yylval.value = atoi(yytext); return NUMBER;
 .                      fprintf(stderr, "Can't parse this token\n"); yyterminate();
 %%
