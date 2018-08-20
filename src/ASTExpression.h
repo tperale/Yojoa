@@ -1,6 +1,6 @@
 /*
- * Expression.h
- * Definition of the structure used to build the syntax tree.
+ * @file ASTExpression.h
+ * @brief
  */
 #ifndef __EXPRESSION_H__
 #define __EXPRESSION_H__

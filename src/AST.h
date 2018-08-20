@@ -55,6 +55,7 @@ typedef int ASTType;
  * @brief The most basic expression structure.
  */
 typedef struct _ASTNode {
+  void (*free)(void*);
 } ASTNode;
 
 #endif

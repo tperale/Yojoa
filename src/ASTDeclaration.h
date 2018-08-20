@@ -4,6 +4,7 @@
 #include "AST.h"
 #include "ASTStatement.h"
 #include "ASTExpression.h"
+#include "ArrayList.h"
 
 //  +-------------+--------------+
 //  |                            |
@@ -45,11 +46,11 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(int type, ASTIdentifier* n
 typedef struct {
   ASTDeclaration declaration;
   ASTDeclarationVariable* name;
-  ASTDeclarationVariable** parameters; // This list should be "NULL" terminated.
+  ArrayList* parameters; // This list should be "NULL" terminated.
   struct ASTBlock* block;
 } ASTDeclarationFunction;
 
 void ASTDeclarationFunction_free(ASTDeclarationFunction* self);
-ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ASTDeclarationVariable** parameters, struct ASTBlock* block);
+ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ArrayList* parameters, struct ASTBlock* block);
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "ASTDeclaration.h"
 #include "ASTExpression.h"
+#include "ArrayList.h"
 
 //                +------------------+--------------------+
 //                |                                       |
@@ -51,8 +52,8 @@ typedef struct {
 
 typedef struct ASTBlock {
   ASTStatement statement;
-  struct ASTDeclarationVariable** variables;
-  ASTStatement** statements;
+  ArrayList* variables; // containing ASTDeclarationVariable
+  ArrayList* statements; // containing ASTStatement
 } ASTBlock;
 
 typedef struct {

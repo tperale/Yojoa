@@ -34,15 +34,12 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType type, ASTIdentifie
  */
 void ASTDeclarationFunction_free(ASTDeclarationFunction* self) {
   ASTDeclarationVariable_free(self->name);
-
-  for (int i = 0; self->parameters != NULL; ++i) {
-    ASTDeclarationVariable_free(self->parameters[i]);
-  }
+  self->parameters->free(self->parameters);
   // TODO ASTBlock_free(self->block);
   free(self);
 }
 
-ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ASTDeclarationVariable** parameters, ASTBlock* block) {
+ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ArrayList* parameters, ASTBlock* block) {
   ASTDeclarationFunction* result = (ASTDeclarationFunction*) malloc(sizeof(ASTDeclarationFunction));
 
   result->name = name;

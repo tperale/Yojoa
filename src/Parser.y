@@ -4,6 +4,7 @@
 #include "ASTDeclaration.h"
 #include "ASTStatement.h"
 #include "ASTExpression.h"
+#include "ArrayList.h"
 
 extern int yylex();
 void yyerror(const char *s) { printf("ERROR: %sn", s); }
@@ -23,9 +24,12 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
   ASTStatement* statement;
   ASTExpression* expression;
   ASTIdentifier* identifier;
-  ASTIdentifier** identifier_list;
+  /* ASTIdentifier** identifier_list;
   ASTDeclarationVariable** var_decl_list;
-  ASTStatement** statement_list;
+  ASTStatement** statement_list; */
+  ArrayList* array_identifier;
+  ArrayList* array_var_decl;
+  ArrayList* array_statement;
   ASTType type_decl;
   int token;
   char* string;
@@ -52,14 +56,14 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
  * Type of the nonterminal symbol specification
  */
 %type <fun_decl> fun_declaration
-%type <var_decl_list> formal_pars var_declarations
 %type <var_decl> var_declaration var_identifier
 %type <statement> statement
-%type <statement_list> statements
+%type <array_var_decl> formal_pars var_declarations
+%type <array_statement> statements
+%type <array_identifier> pars
 %type <block> block
 %type <token> binop unop
 %type <expression> lexp exp
-%type <identifier_list> pars
 %type <identifier> var
 %type <type_decl> type
 
@@ -88,10 +92,10 @@ fun_declaration                   //
 	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5); }
 		;
 
-formal_pars                            // formal_pars is the declaration of arguments in parentheses
-    : var_identifier COMMA formal_pars // Can be either multiple declaration separated by commas
-    | var_identifier                   // a simple declaration
-		|                                  // or no declaration
+formal_pars                               // formal_pars is the declaration of arguments in parentheses
+    : var_identifier COMMA formal_pars { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $$->add_list($$, $3); } // Can be either multiple declaration separated by commas
+    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); } // a simple declaration
+		|                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
 		;
 
 block                             // The content of a function, if, while. Variable declarations are always done on the top of the block.
