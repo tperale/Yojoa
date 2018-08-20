@@ -5,6 +5,7 @@
 #include "ASTDeclaration.h"
 #include "ASTStatement.h"
 #include "ASTExpression.h"
+#include "ASTProgram.h"
 #include "Parser.h"
 #define TOKEN(x) (yylval.token = x)
 %}

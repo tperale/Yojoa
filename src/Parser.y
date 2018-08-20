@@ -4,10 +4,13 @@
 #include "ASTDeclaration.h"
 #include "ASTStatement.h"
 #include "ASTExpression.h"
+#include "ASTProgram.h"
 #include "ArrayList.h"
 
 extern int yylex();
 void yyerror(const char *s) { printf("ERROR: %sn", s); }
+
+ASTProgram* program_struct;
 %}
 
 %output  "Parser.c"
@@ -17,19 +20,14 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
  * Value type specification
  */
 %union {
-  // TODO add the *_create(**) func declaration ?
+  ASTProgram* prog;
   ASTDeclarationFunction* fun_decl;
   ASTDeclarationVariable* var_decl;
   ASTBlock* block;
   ASTStatement* statement;
   ASTExpression* expression;
   ASTIdentifier* identifier;
-  /* ASTIdentifier** identifier_list;
-  ASTDeclarationVariable** var_decl_list;
-  ASTStatement** statement_list; */
-  ArrayList* array_identifier;
-  ArrayList* array_var_decl;
-  ArrayList* array_statement;
+  ArrayList* array;
   ASTType type_decl;
   int token;
   char* string;
@@ -55,12 +53,11 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
 /**
  * Type of the nonterminal symbol specification
  */
+%type <prog> program
 %type <fun_decl> fun_declaration
 %type <var_decl> var_declaration var_identifier
 %type <statement> statement
-%type <array_var_decl> formal_pars var_declarations
-%type <array_statement> statements
-%type <array_identifier> pars
+%type <array> fun_declarations formal_pars var_declarations statements pars
 %type <block> block
 %type <token> binop unop
 %type <expression> lexp exp
@@ -79,32 +76,31 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
 
 %%
 program                           // A program is a list of function declarations
-		: declaration
-    | declaration program
+		: var_declarations fun_declarations { program_struct = ASTProgram_create($1, $2); }
 		;
 
-declaration                       // The program body should only be made of function declaration and global variable declaration.
-    : fun_declaration // TODO trigger a function to define the function
-		| var_declaration // TODO trigger a function to define the variable
-		;
+fun_declarations
+    : fun_declaration fun_declarations { $$ = ArrayList_create(sizeof(ASTDeclarationFunction*)); $$->add($$, (void*) $1); $$->add_list($$, $2); }
+    |                                  { $$ = ArrayList_create(sizeof(ASTDeclarationFunction*)); }
+    ;
 
 fun_declaration                   //
 	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5); }
 		;
 
-formal_pars                               // formal_pars is the declaration of arguments in parentheses
+formal_pars                            // formal_pars is the declaration of arguments in parentheses
     : var_identifier COMMA formal_pars { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $$->add_list($$, $3); } // Can be either multiple declaration separated by commas
     | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); } // a simple declaration
 		|                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
 		;
 
-block                             // The content of a function, if, while. Variable declarations are always done on the top of the block.
-		: LBRACE var_declarations statements RBRACE // ex: { int foo; }
+block                                           // The content of a function, if, while. Variable declarations are always done on the top of the block (eg. { int foo; })
+		: LBRACE var_declarations statements RBRACE { $$ = ASTBlock_create($2, $3); }
 		;
 
-var_declarations                   // How to do a variable declaration
-    : var_declaration var_declarations
-    |
+var_declarations                       // How to do a variable declaration
+    : var_declaration var_declarations { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $$->add_list($$, $2); }
+    |                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); }
 		;
 
 var_declaration                   // How to do a variable declaration
@@ -116,15 +112,15 @@ var_identifier                    // A simple way to identify combination of var
     ;
 
 type                              // Their are only two primitive data types (char, int) and the composed data types
-		: INT { $$ = (ASTType) INT; }
+		: INT  { $$ = (ASTType) INT; }
 		| CHAR { $$ = (ASTType) CHAR; }
 		/* | type LBRACK exp RBRACK // array type (eg: int[4]) */
 		;
 
 statements                        // Statements express how multiple statement need to be combined
-	  : statement SEMICOLON statements // Can be either multiple statement semicolon separated
-    | statement
-		| // or no statement
+	  : statement SEMICOLON statements { $$ = ArrayList_create(sizeof(ASTStatement*)); $$->add($$, (void*) $1); $$->add_list($$, $3); } // Can be either multiple statement semicolon separated
+    | statement                      { $$ = ArrayList_create(sizeof(ASTStatement*)); $$->add($$, (void*) $1); }
+		|                                { $$ = ArrayList_create(sizeof(ASTStatement*)); } // or no statement
 		;
 
 statement                         // Statement express possible actions you can do on the programming language

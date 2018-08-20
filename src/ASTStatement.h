@@ -51,10 +51,11 @@ typedef struct {
 } ASTStatement;
 
 typedef struct ASTBlock {
-  ASTStatement statement;
   ArrayList* variables; // containing ASTDeclarationVariable
   ArrayList* statements; // containing ASTStatement
 } ASTBlock;
+
+ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements);
 
 typedef struct {
   ASTStatement statement;
