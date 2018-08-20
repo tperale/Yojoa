@@ -59,10 +59,9 @@ ASTProgram* program_struct;
 %type <statement> statement
 %type <array> fun_declarations formal_pars var_declarations statements pars
 %type <block> block
-%type <token> binop unop
 %type <expression> exp
 %type <identifier> lexp var
-%type <type_decl> type
+%type <type_decl> type binop unop
 
 /**
  *
@@ -135,14 +134,14 @@ statement                         // Statement express possible actions you can 
 		;
 
 exp
-		: lexp
-		| var LPAR pars RPAR	{ $$ = (ASTExpression*) ASTFunctionCall_create($1, $3); } // function call
-		| exp binop exp       { $$ = (ASTExpression*) ASTOperator_create($1, $3, $2); } // (eg: foo == bar)
-		| unop exp            { $$ = (ASTExpression*) ASTOperator_create($2, NULL, $1); }     // (eg: !foo)
-		| LPAR exp RPAR       { $$ = $2; }                                              // (eg: (foo))
-		| NUMBER              { $$ = (ASTExpression*) ASTInteger_create($1); }          // (eg: 2)
-		| QCHAR               { $$ = (ASTExpression*) ASTChar_create($1); }              // Just a charachter (eg: 'c')
-		// TODO | LENGTH lexp	        { }                                               // size of an array (eg: length foo)
+		: lexp                { $$ = (ASTExpression*) $1; }
+		| var LPAR pars RPAR	{ $$ = (ASTExpression*) ASTFunctionCall_create($1, $3); }   // function call
+		| exp binop exp       { $$ = (ASTExpression*) ASTOperator_create($1, $3, $2); }   // (eg: foo == bar)
+		| unop exp            { $$ = (ASTExpression*) ASTOperator_create($2, NULL, $1); } // (eg: !foo)
+		| LPAR exp RPAR       { $$ = $2; }                                                // (eg: (foo))
+		| NUMBER              { $$ = (ASTExpression*) ASTInteger_create($1); }            // (eg: 2)
+		| QCHAR               { $$ = (ASTExpression*) ASTChar_create($1); }               // Just a charachter (eg: 'c')
+		// TODO | LENGTH lexp	        { }                                                 // size of an array (eg: length foo)
 		;
 
 lexp                              // left expression are either a variable name or variable name array access
@@ -151,25 +150,25 @@ lexp                              // left expression are either a variable name 
 		;
 
 binop                           // List of the binary operators tokens
-		: MINUS
-		| PLUS
-		| TIMES
-		| DIVIDE
-		| EQUAL
-		| NEQUAL
-		| GREATER
-		| LESS
+		: MINUS   { $$ = (ASTType) MINUS; }
+		| PLUS    { $$ = (ASTType) PLUS; }
+		| TIMES   { $$ = (ASTType) TIMES; }
+		| DIVIDE  { $$ = (ASTType) DIVIDE; }
+		| EQUAL   { $$ = (ASTType) EQUAL; }
+		| NEQUAL  { $$ = (ASTType) NEQUAL; }
+		| GREATER { $$ = (ASTType) GREATER; }
+		| LESS    { $$ = (ASTType) LESS; }
 		;
 
 unop                            // List of the binary operators tokens
-		: MINUS
-		| NOT
+		: MINUS   { $$ = (ASTType) MINUS; }
+		| NOT     { $$ = (ASTType) NOT; }
 		;
 
 pars                            // Content of argument comma separated in function call parentheses
-		: exp COMMA pars
-    | exp
-		|                           // Empty
+		: exp COMMA pars { $$ = ArrayList_create(sizeof(ASTExpression*)); $$->add($$, (void*) $1); $$->add_list($$, $3); }
+    | exp            { $$ = ArrayList_create(sizeof(ASTExpression*)); $$->add($$, (void*) $1); }
+		|                { $$ = ArrayList_create(sizeof(ASTExpression*)); }                                                 // Empty
 		;
 
 var                            // variable reference (just a name)

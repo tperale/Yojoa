@@ -8,7 +8,7 @@ FILES=$(wildcard ${SRC}*.c) ${SRC}Lexer.c ${SRC}Parser.c
 OBJS=$(subst .c,.o,$(FILES))
 
 Parser.c:	Parser.y
-		bison -d -o $@ $^
+		bison -v -d -o $@ $^
 
 Parser.h: Parser.c
 
