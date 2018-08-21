@@ -5,10 +5,9 @@
 #include "ArrayList.h"
 
 typedef struct {
-  ArrayList* var_decl;
-  ArrayList* fun_decl;
+  ArrayList* decl;
 } ASTProgram;
 
-ASTProgram* ASTProgram_create(ArrayList*, ArrayList*);
+ASTProgram* ASTProgram_create(ArrayList*);
 
 #endif

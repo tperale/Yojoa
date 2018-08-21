@@ -13,6 +13,7 @@ void yyerror(const char *s) { printf("ERROR: %sn", s); }
 ASTProgram* program_struct;
 %}
 
+%error-verbose
 %output  "Parser.c"
 %defines "Parser.h"
 
@@ -21,6 +22,7 @@ ASTProgram* program_struct;
  */
 %union {
   ASTProgram* prog;
+  ASTDeclaration* decl;
   ASTDeclarationFunction* fun_decl;
   ASTDeclarationVariable* var_decl;
   ASTBlock* block;
@@ -54,10 +56,11 @@ ASTProgram* program_struct;
  * Type of the nonterminal symbol specification
  */
 %type <prog> program
+%type <decl> declaration
 %type <fun_decl> fun_declaration
 %type <var_decl> var_declaration var_identifier
 %type <statement> statement
-%type <array> fun_declarations formal_pars var_declarations statements pars
+%type <array> formal_pars var_declarations statements pars declarations
 %type <block> block
 %type <expression> exp
 %type <identifier> lexp var
@@ -75,12 +78,17 @@ ASTProgram* program_struct;
 
 %%
 program                           // A program is a list of function declarations
-		: var_declarations fun_declarations { program_struct = ASTProgram_create($1, $2); }
+		: declarations                { program_struct = ASTProgram_create($1); }
 		;
 
-fun_declarations
-    : fun_declaration fun_declarations { $$ = ArrayList_create(sizeof(ASTDeclarationFunction*)); $$->add($$, (void*) $1); $$->add_list($$, $2); }
-    |                                  { $$ = ArrayList_create(sizeof(ASTDeclarationFunction*)); }
+declarations
+    : declaration                 { $$ = ArrayList_create(sizeof(ASTDeclaration*)); $$->add($$, (void*) $1); }
+    | declarations declaration    { $1->add($1, $2); }
+    ;
+
+declaration
+    : fun_declaration             { $$ = (ASTDeclaration*) $1; }
+    | var_declaration             { $$ = (ASTDeclaration*) $1; }
     ;
 
 fun_declaration                   //
@@ -88,9 +96,9 @@ fun_declaration                   //
 		;
 
 formal_pars                            // formal_pars is the declaration of arguments in parentheses
-    : var_identifier COMMA formal_pars { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $$->add_list($$, $3); } // Can be either multiple declaration separated by commas
+		:                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
     | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); } // a simple declaration
-		|                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
+    | formal_pars COMMA var_identifier { $1->add($$, (void*) $3); } // Can be either multiple declaration separated by commas
 		;
 
 block                                           // The content of a function, if, while. Variable declarations are always done on the top of the block (eg. { int foo; })
@@ -98,8 +106,8 @@ block                                           // The content of a function, if
 		;
 
 var_declarations                       // How to do a variable declaration
-    : var_declaration var_declarations { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $$->add_list($$, $2); }
-    |                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); }
+    :                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); }
+    | var_declarations var_declaration { $1->add($$, (void*) $2); }
 		;
 
 var_declaration                   // How to do a variable declaration
@@ -172,6 +180,6 @@ pars                            // Content of argument comma separated in functi
 		;
 
 var                            // variable reference (just a name)
-		: NAME { $$ = ASTIdentifier_create($1); free($1); }
+		: NAME { $$ = ASTIdentifier_create((char*) $1); free($1); }
     ;
 %%
