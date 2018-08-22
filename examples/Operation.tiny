@@ -1,0 +1,7 @@
+int tiny(){
+  int foo;
+
+  foo = 3 + 4;
+
+  return foo + 2;
+}
