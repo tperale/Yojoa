@@ -6,11 +6,15 @@
 #include "ASTExpression.h"
 #include "ASTProgram.h"
 #include "ArrayList.h"
+#include "Symbols.h"
 
 extern int yylex();
-void yyerror(const char *s) { printf("ERROR: %sn", s); }
+void yyerror(const char *s) { printf("ERROR: %s\n", s); }
 
 ASTProgram* program_struct;
+SymbolList* symbols;
+#define SYMBOL_NEW(x, y, z) if (!SymbolList_new(symbols, x, y, (ASTNode*) z)) { yyerror("Symbol is already defined"); YYABORT; }
+#define SYMBOL_EXIST(x) if (!SymbolList_exist(symbols, x)) { yyerror("Symbol is not defined"); YYABORT; }
 %}
 
 %error-verbose
@@ -92,7 +96,7 @@ declaration
     ;
 
 fun_declaration                   //
-	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5); }
+	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5); SYMBOL_NEW(FUNC, $1, $$); }
 		;
 
 formal_pars                            // formal_pars is the declaration of arguments in parentheses
@@ -111,7 +115,7 @@ var_declarations                       // How to do a variable declaration
 		;
 
 var_declaration                   // How to do a variable declaration
-    : var_identifier SEMICOLON { $$ = $1; } // ex: int foo;
+    : var_identifier SEMICOLON { $$ = $1; SYMBOL_NEW(VAR, $1, $$); } // ex: int foo;
 		;
 
 var_identifier                    // A simple way to identify combination of variable type and name
@@ -143,7 +147,7 @@ statement                         // Statement express possible actions you can 
 
 exp
 		: lexp                { $$ = (ASTExpression*) $1; }
-		| var LPAR pars RPAR	{ $$ = (ASTExpression*) ASTFunctionCall_create($1, $3); }   // function call
+		| var LPAR pars RPAR	{ $$ = (ASTExpression*) ASTFunctionCall_create($1, $3); SYMBOL_EXIST($1); }   // function call
 		| exp binop exp       { $$ = (ASTExpression*) ASTOperator_create($1, $3, $2); }   // (eg: foo == bar)
 		| unop exp            { $$ = (ASTExpression*) ASTOperator_create($2, NULL, $1); } // (eg: !foo)
 		| LPAR exp RPAR       { $$ = $2; }                                                // (eg: (foo))
@@ -153,7 +157,7 @@ exp
 		;
 
 lexp                              // left expression are either a variable name or variable name array access
-		: var     { $$ = $1; } // (eg: foo) // TODO symbol verification
+		: var     { $$ = $1; SYMBOL_EXIST($$); } // (eg: foo)
 		// TODO | lexp LBRACK exp RBRACK	// ex: foo[2]
 		;
 

@@ -80,6 +80,10 @@ ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, in
 // typedef struct {
 //   char value[64];
 // } ASTIdentifier;
+int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y) {
+  return strcmp(x->value, y->value) == 0;
+}
+
 void ASTIdentifier_free(void* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
   free(self);

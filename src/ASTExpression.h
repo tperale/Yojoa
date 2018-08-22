@@ -81,6 +81,7 @@ typedef struct {
   ASTExpression expression;
   char value[64];
 } ASTIdentifier;
+int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y);
 void ASTIdentifier_free(void* self);
 ASTIdentifier* ASTIdentifier_create(char* value);
 
