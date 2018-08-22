@@ -6,11 +6,20 @@
 #include "ASTExpression.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // typedef struct {
 //   ASTExpression expression;
 //   int value;
 // } ASTInteger;
+char* ASTInteger_code_gen(void* _self) {
+  ASTInteger* self = (ASTInteger*) _self;
+
+  asprintf(&((ASTNode*) self)->code, "(i32.const %i)", self->value);
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTInteger_free(void* _self) {
   ASTInteger* self = (ASTInteger*) _self;
   free(self);
@@ -20,6 +29,7 @@ ASTInteger* ASTInteger_create(int value) {
   ASTInteger* result = malloc(sizeof(ASTInteger));
   result->value = value;
   result->expression.node.free = ASTInteger_free;
+  result->expression.node.code_gen = ASTInteger_code_gen;
   return result;
 }
 
@@ -61,10 +71,19 @@ ASTString* ASTString_create(char* value) {
 //   ASTExpression* lvalue;
 //   ASTExpression* rvalue;
 // } ASTOperator;
+char* ASTOperator_code_gen(void* _self) {
+  ASTOperator* self = (ASTOperator*) _self;
+
+  asprintf(&((ASTNode*) self)->code, "(i32.add %s %s)", ((ASTNode*) self->lvalue)->code_gen(self->lvalue), ((ASTNode*) self->rvalue)->code_gen(self->rvalue));
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTOperator_free(void* _self) {
   ASTOperator* self = (ASTOperator*) _self;
   ((ASTNode*) self->lvalue)->free(self->lvalue);
   if (self->rvalue) ((ASTNode*) self->rvalue)->free(self->rvalue);
+  free(self->expression.node.code);
   free(self);
 }
 
@@ -74,6 +93,7 @@ ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, in
   result->rvalue = rvalue;
   result->operator_token = operator_token;
   result->expression.node.free = ASTOperator_free;
+  result->expression.node.code_gen = ASTOperator_code_gen;
   return result;
 }
 

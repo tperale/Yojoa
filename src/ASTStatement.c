@@ -1,15 +1,37 @@
 #include "ASTStatement.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 // typedef struct ASTBlock {
 //   ArrayList* variables; // containing ASTDeclarationVariable
 //   ArrayList* statements; // containing ASTStatement
 // } ASTBlock;
+char* ASTBlock_code_gen(void* _self) {
+  ASTBlock* self = (ASTBlock*) _self;
+
+  char* statements;
+  asprintf(&statements, " ");
+  for (unsigned int i = 0; i < self->statements->size; ++i) {
+    char* buffer;
+    ASTNode* node = self->statements->get(self->statements, i);
+    asprintf(&buffer, "%s %s", statements, node->code_gen(node));
+    free(statements);
+    asprintf(&statements, "%s", buffer);
+    free(buffer);
+  }
+
+  asprintf(&((ASTNode*) self)->code, "%s", statements);
+
+  return ((ASTNode*) self)->code;
+}
 
 void ASTBlock_free(void* _self) {
   ASTBlock* self = (ASTBlock*) _self;
   self->variables->free(self->variables);
   self->statements->free(self->statements);
+
+  free(self->statement.node.code);
+  free(self);
 }
 
 ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements) {
@@ -18,6 +40,7 @@ ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements) {
   result->statements = statements;
 
   result->statement.node.free = ASTBlock_free;
+  result->statement.node.code_gen = ASTBlock_code_gen;
 
   return result;
 }
@@ -100,10 +123,19 @@ ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* con
 //   ASTStatement statement;
 //   ASTExpression* value;
 // } ASTStatementReturn;
+char* ASTStatementReturn_code_gen(void* _self) {
+  ASTStatementReturn* self = (ASTStatementReturn*) _self;
+
+  asprintf(&((ASTNode*) self)->code, "%s", ((ASTNode*) self->value)->code_gen(self->value));
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTStatementReturn_free(void* _self) {
   ASTStatementReturn* self = (ASTStatementReturn*) _self;
 
   ((ASTNode*) self->value)->free(self->value);
+  free(self->statement.node.code);
   free(self);
 }
 
@@ -113,6 +145,7 @@ ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value) {
   result->value = value;
 
   result->statement.node.free = ASTStatementReturn_free;
+  result->statement.node.code_gen = ASTStatementReturn_code_gen;
 
   return result;
 }

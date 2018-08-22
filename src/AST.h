@@ -56,6 +56,8 @@ typedef int ASTType;
  */
 typedef struct _ASTNode {
   void (*free)(void*);
+  char* (*code_gen)(void*);
+  char* code;
 } ASTNode;
 
 #endif

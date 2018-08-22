@@ -5,7 +5,7 @@
 #define ARRAY_LIST_BASE_SIZE 32
 
 static void* ArrayList_get(ArrayList* self, const unsigned int index) {
-  return (void*) (self->content + (index * self->_item_size));
+  return (void*) self->content[index];
 }
 
 static size_t ArrayList_add(ArrayList* self, void* item) {

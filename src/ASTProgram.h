@@ -5,9 +5,11 @@
 #include "ArrayList.h"
 
 typedef struct {
+  ASTNode node;
   ArrayList* decl;
 } ASTProgram;
 
+char* ASTProgram_code_gen(void* _self);
 ASTProgram* ASTProgram_create(ArrayList*);
 
 #endif
