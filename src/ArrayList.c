@@ -39,6 +39,7 @@ static void ArrayList_free(ArrayList* self) {
     void* tmp = self->content + (i * (self->_item_size));
     ((ASTNode*) tmp)->free(tmp);
   }
+  free(self->content);
   free(self);
 }
 
