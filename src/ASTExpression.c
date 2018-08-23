@@ -115,17 +115,17 @@ char* ASTOperator_code_gen(void* _self) {
       asprintf(&operator, "i32.neq");
       break;
     case bGREATER:
-      asprintf(&operator, "i32.gt");
+      asprintf(&operator, "i32.gt_s");
       break;
     case bLESS:
-      asprintf(&operator, "i32.lt");
+      asprintf(&operator, "i32.lt_s");
       break;
     case uMINUS:
-      asprintf(&operator, "i32.neg");
-      break;
+      asprintf(&((ASTNode*) self)->code, "(i32.neg %s)", ((ASTNode*) self->lvalue)->code_gen(self->lvalue));
+      return ((ASTNode*) self)->code;
     case uNOT:
-      asprintf(&operator, "i32.neg"); // TODO
-      break;
+      asprintf(&((ASTNode*) self)->code, "(i32.eq %s (i32.const 0))", ((ASTNode*) self->lvalue)->code_gen(self->lvalue));
+      return ((ASTNode*) self)->code;
   }
 
   asprintf(&((ASTNode*) self)->code, "(%s %s %s)", operator, ((ASTNode*) self->lvalue)->code_gen(self->lvalue), ((ASTNode*) self->rvalue)->code_gen(self->rvalue));

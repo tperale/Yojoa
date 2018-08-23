@@ -137,7 +137,9 @@ ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStat
 // } ASTStatementLoop;
 char* ASTStatementLoop_code_gen(void* _self) {
   ASTStatementLoop* self = (ASTStatementLoop*) _self;
-
+  char* condition_code = ((ASTNode*) self->condition)->code_gen(self->condition);
+  char* content = ((ASTNode*) self->content)->code_gen(self->content);
+  asprintf(&((ASTNode*) self)->code, "(block (loop (br_if 1 (i32.eq %s (i32.const 0))) %s (br 0)))", condition_code, content);
   return ((ASTNode*) self)->code;
 }
 

@@ -1,0 +1,11 @@
+int tiny() {
+  int i;
+  int a;
+  i = 0;
+  while (i < 10) {
+    a = i * 2;
+    i = i + 1;
+    return i;
+  }
+  return a;
+}
