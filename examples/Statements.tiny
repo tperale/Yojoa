@@ -3,8 +3,9 @@ int tiny(){
 
   foo = 1;
 
-  // IF LPAR exp RPAR statement
   if (foo) {
     foo = 0;
   }
+
+  return foo;
 }

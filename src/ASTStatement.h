@@ -71,7 +71,7 @@ ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, AST
 typedef struct {
   ASTStatement statement;
   ASTExpression* condition;
-  ASTStatement* if_block;
+  ASTStatement* if_block; // TODO Change to block ?
   ASTStatement* else_block;
 } ASTStatementCondition;
 

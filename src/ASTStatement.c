@@ -97,6 +97,17 @@ ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, AST
 //   ASTBlock* if_block;
 //   ASTBlock* else_block;
 // } ASTStatementCondition;
+char* ASTStatementCondition_code_gen(void* _self) {
+  ASTStatementCondition* self = (ASTStatementCondition*) _self;
+
+  char* condition_code = ((ASTNode*) self->condition)->code_gen(self->condition);
+  char* if_code = ((ASTNode*) self->if_block)->code_gen(self->if_block);
+  char* else_code = self->else_block ? ((ASTNode*) self->else_block)->code_gen(self->else_block) : "";
+  asprintf(&((ASTNode*) self)->code, "%s(if (then %s)(else %s))", condition_code, if_code, else_code);
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTStatementCondition_free(void* _self) {
   ASTStatementCondition* self = (ASTStatementCondition*) _self;
 
@@ -114,6 +125,7 @@ ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStat
   result->else_block = else_block;
 
   result->statement.node.free = ASTStatementCondition_free;
+  result->statement.node.code_gen = ASTStatementCondition_code_gen;
 
   return result;
 }
@@ -123,11 +135,17 @@ ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStat
 //   ASTExpression* condition;
 //   ASTBlock* content;
 // } ASTStatementLoop;
-void ASTStatementLoop_free(void* _self) {
+char* ASTStatementLoop_code_gen(void* _self) {
   ASTStatementLoop* self = (ASTStatementLoop*) _self;
 
+  return ((ASTNode*) self)->code;
+}
+
+void ASTStatementLoop_free(void* _self) {
+  ASTStatementLoop* self = (ASTStatementLoop*) _self;
   ((ASTNode*) self->condition)->free(self->condition);
   ASTBlock_free(self->content);
+  if (self->statement.node.code) { free(self->statement.node.code); }
   free(self);
 }
 
@@ -138,6 +156,7 @@ ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* con
   result->content = content;
 
   result->statement.node.free = ASTStatementLoop_free;
+  result->statement.node.code_gen = ASTStatementLoop_code_gen;
 
   return result;
 }

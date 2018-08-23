@@ -102,7 +102,7 @@ void ASTOperator_free(void* _self) {
   ASTOperator* self = (ASTOperator*) _self;
   ((ASTNode*) self->lvalue)->free(self->lvalue);
   if (self->rvalue) ((ASTNode*) self->rvalue)->free(self->rvalue);
-  if (result->expression.node.code) { free(self->expression.node.code); }
+  if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
 
@@ -134,7 +134,7 @@ char* ASTIdentifier_code_gen(void* _self) {
 
 void ASTIdentifier_free(void* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
-  if (result->expression.node.code) { free(result->expression.node.code); }
+  if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
 
@@ -175,7 +175,7 @@ void ASTFunctionCall_free(void* _self) {
   ASTFunctionCall* self = (ASTFunctionCall*) _self;
   ASTIdentifier_free(self->name);
   self->arguments->free(self->arguments);
-  if (result->expression.node.code) { free(result->expression.node.code); }
+  if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
 
