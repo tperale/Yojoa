@@ -101,8 +101,8 @@ fun_declaration                   //
 
 formal_pars                            // formal_pars is the declaration of arguments in parentheses
 		:                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
-    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $1->scope = PARAM; } // a simple declaration
-    | formal_pars COMMA var_identifier { $1->add($$, (void*) $3); $3->scope = PARAM; } // Can be either multiple declaration separated by commas
+    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $1->scope = PARAM; SYMBOL_NEW(PARAM, $1, $1); } // a simple declaration
+    | formal_pars COMMA var_identifier { $1->add($$, (void*) $3); $3->scope = PARAM; SYMBOL_NEW(PARAM, $3, $3); } // Can be either multiple declaration separated by commas
 		;
 
 block                                           // The content of a function, if, while. Variable declarations are always done on the top of the block (eg. { int foo; })

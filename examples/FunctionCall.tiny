@@ -1,0 +1,9 @@
+int bar(int a) {
+  return 42 + a;
+}
+
+int tiny() {
+  int foo;
+  foo = bar(4) + 2;
+  return foo;
+}
