@@ -168,7 +168,7 @@ ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* con
 char* ASTStatementReturn_code_gen(void* _self) {
   ASTStatementReturn* self = (ASTStatementReturn*) _self;
 
-  asprintf(&((ASTNode*) self)->code, "%s", ((ASTNode*) self->value)->code_gen(self->value));
+  asprintf(&((ASTNode*) self)->code, "(return %s)", ((ASTNode*) self->value)->code_gen(self->value));
 
   return ((ASTNode*) self)->code;
 }
