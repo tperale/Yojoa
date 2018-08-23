@@ -14,7 +14,7 @@ static size_t ArrayList_add(ArrayList* self, void* item) {
     self->content = realloc(self->content, self->_max_size * self->_item_size);
   }
 
-  *(self->content + (self->size * self->_item_size)) = item;
+  self->content[self->size] = item;
   return self->size += 1;
 }
 
