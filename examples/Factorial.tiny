@@ -1,0 +1,14 @@
+int factorial_recur(int n) {
+  if (n == 1) return 1;
+  return n * factorial(n - 1);
+}
+
+int factorial(int n) {
+  int x;
+  x = n;
+  while (n > 1) {
+    n = n - 1;
+    x = x * n;
+  }
+  return x;
+}
