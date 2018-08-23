@@ -92,17 +92,17 @@ declarations
 
 declaration
     : fun_declaration             { $$ = (ASTDeclaration*) $1; }
-    | var_declaration             { $$ = (ASTDeclaration*) $1; }
+    | var_declaration             { $$ = (ASTDeclaration*) $1; $1->scope = GLOBAL; }
     ;
 
 fun_declaration                   //
-	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5); SYMBOL_NEW(FUNC, $1, $$); }
+	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5); SYMBOL_NEW(FUNC, $1, $$); $1->scope = FUNC; }
 		;
 
 formal_pars                            // formal_pars is the declaration of arguments in parentheses
 		:                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
-    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); } // a simple declaration
-    | formal_pars COMMA var_identifier { $1->add($$, (void*) $3); } // Can be either multiple declaration separated by commas
+    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $1->scope = PARAM; } // a simple declaration
+    | formal_pars COMMA var_identifier { $1->add($$, (void*) $3); $3->scope = PARAM; } // Can be either multiple declaration separated by commas
 		;
 
 block                                           // The content of a function, if, while. Variable declarations are always done on the top of the block (eg. { int foo; })
@@ -111,7 +111,7 @@ block                                           // The content of a function, if
 
 var_declarations                       // How to do a variable declaration
     :                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); }
-    | var_declarations var_declaration { $1->add($$, (void*) $2); }
+    | var_declarations var_declaration { $1->add($$, (void*) $2); $2->scope = LOCAL; }
 		;
 
 var_declaration                   // How to do a variable declaration
@@ -129,17 +129,17 @@ type                              // Their are only two primitive data types (ch
 		;
 
 statements                        // Statements express how multiple statement need to be combined
-	  : statement SEMICOLON statements { $$ = ArrayList_create(sizeof(ASTStatement*)); $$->add($$, (void*) $1); $$->add_list($$, $3); } // Can be either multiple statement semicolon separated
+		:                                { $$ = ArrayList_create(sizeof(ASTStatement*)); } // or no statement
     | statement                      { $$ = ArrayList_create(sizeof(ASTStatement*)); $$->add($$, (void*) $1); }
-		|                                { $$ = ArrayList_create(sizeof(ASTStatement*)); } // or no statement
+	  | statements statement           { $1->add($$, (void*) $2); } // Can be either multiple statement semicolon separated
 		;
 
 statement                         // Statement express possible actions you can do on the programming language
 	  : IF LPAR exp RPAR statement                 { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, NULL); }
 		| IF LPAR exp RPAR statement ELSE statement  { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, $7); }
 		| WHILE LPAR exp RPAR statement              { $$ = (ASTStatement*) ASTStatementLoop_create($3, $5); }
-		| lexp ASSIGN exp                            { $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3); } // assignment
-		| RETURN exp                                 { $$ = (ASTStatement*) ASTStatementReturn_create($2); } // return statement
+		| lexp ASSIGN exp SEMICOLON                  { $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3); } // assignment
+		| RETURN exp SEMICOLON                       { $$ = (ASTStatement*) ASTStatementReturn_create($2); } // return statement
 		| block                                      { $$ = (ASTStatement*) $1; }
 		// TODO | WRITE exp
 		// TODO | READ lexp
