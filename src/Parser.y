@@ -141,8 +141,8 @@ statement                         // Statement express possible actions you can 
 		| lexp ASSIGN exp SEMICOLON                  { $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3); } // assignment
 		| RETURN exp SEMICOLON                       { $$ = (ASTStatement*) ASTStatementReturn_create($2); } // return statement
 		| block                                      { $$ = (ASTStatement*) $1; }
-		// TODO | WRITE exp
-		// TODO | READ lexp
+		| WRITE exp                                  { $$ = (ASTStatement*) ASTStatementWrite_create($2); }
+		| READ lexp                                  { $$ = (ASTStatement*) ASTStatementRead_create($2); }
 		;
 
 exp

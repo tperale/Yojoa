@@ -190,3 +190,57 @@ ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value) {
 
   return result;
 }
+
+// typedef struct {
+//   ASTStatement statement;
+//   ASTExpression* value;
+// } ASTStatementWrite;
+char* ASTStatementWrite_code_gen(void* _self) {
+  ASTStatementWrite* self = (ASTStatementWrite*) _self;
+
+  return ((ASTNode*) self)->code;
+}
+
+void ASTStatementWrite_free(void* _self) {
+  ASTStatementWrite* self = (ASTStatementWrite*) _self;
+  ((ASTNode*) self->value)->free(self->value);
+  if (self->statement.node.code) { free(self->statement.node.code); }
+  free(self);
+}
+
+ASTStatementWrite* ASTStatementWrite_create(ASTExpression* value) {
+  ASTStatementWrite* result = (ASTStatementWrite*) malloc(sizeof(ASTStatementWrite));
+  result->value = value;
+
+  result->statement.node.free = ASTStatementWrite_free;
+  result->statement.node.code_gen = ASTStatementWrite_code_gen;
+
+  return result;
+}
+
+// typedef struct {
+//   ASTStatement statement;
+//   ASTIdentifier* ref;
+// } ASTStatementRead;
+char* ASTStatementRead_code_gen(void* _self) {
+  ASTStatementRead* self = (ASTStatementRead*) _self;
+
+  return ((ASTNode*) self)->code;
+}
+
+void ASTStatementRead_free(void* _self) {
+  ASTStatementRead* self = (ASTStatementRead*) _self;
+  ((ASTNode*) self->ref)->free(self->ref);
+  if (self->statement.node.code) { free(self->statement.node.code); }
+  free(self);
+}
+
+ASTStatementRead* ASTStatementRead_create(ASTIdentifier* ref) {
+  ASTStatementRead* result = (ASTStatementRead*) malloc(sizeof(ASTStatementRead));
+  result->ref = ref;
+
+  result->statement.node.free = ASTStatementRead_free;
+  result->statement.node.code_gen = ASTStatementRead_code_gen;
+
+  return result;
+}

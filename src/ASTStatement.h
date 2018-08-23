@@ -95,4 +95,20 @@ typedef struct {
 void ASTStatementReturn_free(void* _self);
 ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value);
 
+typedef struct {
+  ASTStatement statement;
+  ASTExpression* value;
+} ASTStatementWrite;
+
+void ASTStatementWrite_free(void* _self);
+ASTStatementWrite* ASTStatementWrite_create(ASTExpression*);
+
+typedef struct {
+  ASTStatement statement;
+  ASTIdentifier* ref;
+} ASTStatementRead;
+
+void ASTStatementRead_free(void* _self);
+ASTStatementRead* ASTStatementRead_create(ASTIdentifier*);
+
 #endif
