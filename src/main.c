@@ -13,6 +13,6 @@ extern SymbolList* symbols;
 int main(void) {
   symbols = SymbolList_create();
   yyparse();
-  printf("%s", ASTProgram_code_gen(program_struct));
+  printf("%s\n", ASTProgram_code_gen(program_struct));
   return 0;
 }
