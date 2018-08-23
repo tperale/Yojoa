@@ -9,6 +9,17 @@
 char* ASTBlock_code_gen(void* _self) {
   ASTBlock* self = (ASTBlock*) _self;
 
+  char* variables;
+  asprintf(&variables, " ");
+  for (unsigned int i = 0; i < self->variables->size; ++i) {
+    char* buffer;
+    ASTNode* node = self->variables->get(self->variables, i);
+    asprintf(&buffer, "%s %s", variables, node->code_gen(node));
+    free(variables);
+    asprintf(&variables, "%s", buffer);
+    free(buffer);
+  }
+
   char* statements;
   asprintf(&statements, " ");
   for (unsigned int i = 0; i < self->statements->size; ++i) {
@@ -20,7 +31,9 @@ char* ASTBlock_code_gen(void* _self) {
     free(buffer);
   }
 
-  asprintf(&((ASTNode*) self)->code, "%s", statements);
+  asprintf(&((ASTNode*) self)->code, "%s%s", variables, statements);
+  free(variables);
+  free(statements);
 
   return ((ASTNode*) self)->code;
 }
@@ -50,6 +63,15 @@ ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements) {
 //   ASTIdentifier* lvalue;
 //   ASTExpression* rvalue;
 // } ASTStatementAssignment;
+char* ASTStatementAssignment_code_gen(void* _self) {
+  ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
+
+  // TODO link with the symtable
+  asprintf(&((ASTNode*) self)->code, "(set_local $%s %s)", self->lvalue->value, ((ASTNode*) self->rvalue)->code_gen(self->rvalue));
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTStatementAssignment_free(void* _self) {
   ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
 
@@ -63,7 +85,8 @@ ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, AST
   result->lvalue = lvalue;
   result->rvalue = rvalue;
 
-  result->statement.node.free =  ASTStatementAssignment_free;
+  result->statement.node.free = ASTStatementAssignment_free;
+  result->statement.node.code_gen = ASTStatementAssignment_code_gen;
 
   return result;
 }
@@ -133,9 +156,8 @@ char* ASTStatementReturn_code_gen(void* _self) {
 
 void ASTStatementReturn_free(void* _self) {
   ASTStatementReturn* self = (ASTStatementReturn*) _self;
-
   ((ASTNode*) self->value)->free(self->value);
-  free(self->statement.node.code);
+  if (self->statement.node.code) { free(self->statement.node.code); }
   free(self);
 }
 

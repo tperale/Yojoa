@@ -22,6 +22,7 @@ char* ASTInteger_code_gen(void* _self) {
 
 void ASTInteger_free(void* _self) {
   ASTInteger* self = (ASTInteger*) _self;
+  if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
 
@@ -37,8 +38,15 @@ ASTInteger* ASTInteger_create(int value) {
 //   ASTExpression expression;
 //   char value;
 // } ASTChar;
+char* ASTChar_code_gen(void* _self) {
+  ASTChar* self = (ASTChar*) _self;
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTChar_free(void* _self) {
   ASTChar* self = (ASTChar*) _self;
+  if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
 
@@ -46,6 +54,7 @@ ASTChar* ASTChar_create(char value) {
   ASTChar* result = malloc(sizeof(ASTChar));
   result->value = value;
   result->expression.node.free = ASTChar_free;
+  result->expression.node.code_gen = ASTChar_code_gen;
   return result;
 }
 
@@ -53,9 +62,18 @@ ASTChar* ASTChar_create(char value) {
 //   ASTExpression expression;
 //   char* value;
 // } ASTString;
+char* ASTString_code_gen(void* _self) {
+  ASTString* self = (ASTString*) _self;
+
+  asprintf(&((ASTNode*) self)->code, "%s", self->value);
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTString_free(void* _self) {
   ASTString* self = (ASTString*) _self;
   free(self->value);
+  if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
 
@@ -63,6 +81,7 @@ ASTString* ASTString_create(char* value) {
   ASTString* result = malloc(sizeof(ASTString));
   result->value = value;
   result->expression.node.free = ASTString_free;
+  result->expression.node.code_gen = ASTString_code_gen;
   return result;
 }
 
@@ -83,7 +102,7 @@ void ASTOperator_free(void* _self) {
   ASTOperator* self = (ASTOperator*) _self;
   ((ASTNode*) self->lvalue)->free(self->lvalue);
   if (self->rvalue) ((ASTNode*) self->rvalue)->free(self->rvalue);
-  free(self->expression.node.code);
+  if (result->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
 
@@ -104,8 +123,18 @@ int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y) {
   return strcmp(x->value, y->value) == 0;
 }
 
+char* ASTIdentifier_code_gen(void* _self) {
+  ASTIdentifier* self = (ASTIdentifier*) _self;
+
+  // TODO link with the symtable
+  asprintf(&((ASTNode*) self)->code, "(get_local $%s)", self->value);
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTIdentifier_free(void* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
+  if (result->expression.node.code) { free(result->expression.node.code); }
   free(self);
 }
 
@@ -113,6 +142,7 @@ ASTIdentifier* ASTIdentifier_create(char* value) {
   ASTIdentifier* result = malloc(sizeof(ASTIdentifier));
   strcpy(result->value, value);
   result->expression.node.free = ASTIdentifier_free;
+  result->expression.node.code_gen = ASTIdentifier_code_gen;
   return result;
 }
 
@@ -121,10 +151,31 @@ ASTIdentifier* ASTIdentifier_create(char* value) {
 //   ASTIdentifier* name;
 //   ArrayList* arguments;
 // } ASTFunctionCall;
+char* ASTFunctionCall_code_gen(void* _self) {
+  ASTFunctionCall* self = (ASTFunctionCall*) _self;
+
+  char* arguments;
+  asprintf(&arguments, " ");
+  for (unsigned int i = 0; i < self->arguments->size; ++i) {
+    char* buffer;
+    ASTNode* node = self->arguments->get(self->arguments, i);
+    asprintf(&buffer, "%s %s", arguments, node->code_gen(node));
+    free(arguments);
+    asprintf(&arguments, "%s", buffer);
+    free(buffer);
+  }
+
+  asprintf(&((ASTNode*) self)->code, "(call $%s %s)", self->name->value, arguments);
+  free(arguments);
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTFunctionCall_free(void* _self) {
   ASTFunctionCall* self = (ASTFunctionCall*) _self;
   ASTIdentifier_free(self->name);
   self->arguments->free(self->arguments);
+  if (result->expression.node.code) { free(result->expression.node.code); }
   free(self);
 }
 
@@ -133,5 +184,6 @@ ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* argument
   result->name = name;
   result->arguments = arguments;
   result->expression.node.free = ASTFunctionCall_free;
+  result->expression.node.code_gen = ASTFunctionCall_code_gen;
   return result;
 }

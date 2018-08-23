@@ -34,9 +34,18 @@ typedef struct {
   ASTNode node;
 } ASTDeclaration;
 
+typedef enum {
+  NONE,
+  LOCAL,
+  GLOBAL,
+  PARAM,
+  FUNC,
+} ASTScope;
+
 typedef struct ASTDeclarationVariable {
   ASTDeclaration declaration;
   ASTType type;
+  ASTScope scope;
   ASTIdentifier* name;
 } ASTDeclarationVariable;
 

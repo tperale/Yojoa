@@ -10,10 +10,31 @@
  *   ASTIdentifier* name;
  * } ASTDeclarationVariable;
 */
+char* ASTDeclarationVariable_code_gen(void* _self) {
+  ASTDeclarationVariable* self = (ASTDeclarationVariable*) _self;
+
+  char* type;
+  // if (self->type == INT) {
+    asprintf(&type, "i32");
+  // }
+
+  char* scope;
+  if (self->scope == LOCAL) {
+    asprintf(&scope, "local");
+  }
+
+  char* name = self->name->value;
+  asprintf(&((ASTNode*) self)->code, "(%s $%s %s)", scope, name, type);
+  free(type);
+  free(scope);
+
+  return ((ASTNode*) self)->code;
+}
+
 void ASTDeclarationVariable_free(void* _self) {
   ASTDeclarationVariable* self = (ASTDeclarationVariable*) _self;
   ASTIdentifier_free(self->name);
-
+  if (self->declaration.node.code) { free(self->declaration.node.code); }
   free(self);
 }
 
@@ -24,6 +45,7 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType type, ASTIdentifie
   result->name = name;
 
   result->declaration.node.free = ASTDeclarationVariable_free;
+  result->declaration.node.code_gen = ASTDeclarationVariable_code_gen;
 
   return result;
 }
