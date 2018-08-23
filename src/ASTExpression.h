@@ -72,7 +72,7 @@ typedef struct {
   ASTExpression expression;
   ASTExpression* lvalue;
   ASTExpression* rvalue;
-  int operator_token;
+  Operator_t operator_token;
 } ASTOperator;
 void ASTOperator_free(void* _self);
 ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, int operator_token);

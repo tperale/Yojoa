@@ -89,11 +89,46 @@ ASTString* ASTString_create(char* value) {
 //   ASTExpression expression;
 //   ASTExpression* lvalue;
 //   ASTExpression* rvalue;
+//   Operator_t operator_token;
 // } ASTOperator;
 char* ASTOperator_code_gen(void* _self) {
   ASTOperator* self = (ASTOperator*) _self;
 
-  asprintf(&((ASTNode*) self)->code, "(i32.add %s %s)", ((ASTNode*) self->lvalue)->code_gen(self->lvalue), ((ASTNode*) self->rvalue)->code_gen(self->rvalue));
+  char* operator;
+  switch (self->operator_token) {
+    case bPLUS:
+      asprintf(&operator, "i32.add");
+      break;
+    case bMINUS:
+      asprintf(&operator, "i32.sub");
+      break;
+    case bTIMES:
+      asprintf(&operator, "i32.mul");
+      break;
+    case bDIVIDE:
+      asprintf(&operator, "i32.div_s");
+      break;
+    case bEQUAL:
+      asprintf(&operator, "i32.eq");
+      break;
+    case bNEQUAL:
+      asprintf(&operator, "i32.neq");
+      break;
+    case bGREATER:
+      asprintf(&operator, "i32.gt");
+      break;
+    case bLESS:
+      asprintf(&operator, "i32.lt");
+      break;
+    case uMINUS:
+      asprintf(&operator, "i32.neg");
+      break;
+    case uNOT:
+      asprintf(&operator, "i32.neg"); // TODO
+      break;
+  }
+
+  asprintf(&((ASTNode*) self)->code, "(%s %s %s)", operator, ((ASTNode*) self->lvalue)->code_gen(self->lvalue), ((ASTNode*) self->rvalue)->code_gen(self->rvalue));
 
   return ((ASTNode*) self)->code;
 }

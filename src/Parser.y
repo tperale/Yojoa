@@ -35,6 +35,7 @@ SymbolList* symbols;
   ASTIdentifier* identifier;
   ArrayList* array;
   ASTType type_decl;
+  Operator_t operator;
   int token;
   char* string;
   char qchar;
@@ -68,7 +69,8 @@ SymbolList* symbols;
 %type <block> block
 %type <expression> exp
 %type <identifier> lexp var
-%type <type_decl> type binop unop
+%type <type_decl> type
+%type <operator> binop unop
 
 /**
  *
@@ -162,19 +164,19 @@ lexp                              // left expression are either a variable name 
 		;
 
 binop                           // List of the binary operators tokens
-		: MINUS   { $$ = (ASTType) MINUS; }
-		| PLUS    { $$ = (ASTType) PLUS; }
-		| TIMES   { $$ = (ASTType) TIMES; }
-		| DIVIDE  { $$ = (ASTType) DIVIDE; }
-		| EQUAL   { $$ = (ASTType) EQUAL; }
-		| NEQUAL  { $$ = (ASTType) NEQUAL; }
-		| GREATER { $$ = (ASTType) GREATER; }
-		| LESS    { $$ = (ASTType) LESS; }
+		: MINUS   { $$ = (Operator_t) bMINUS; }
+		| PLUS    { $$ = (Operator_t) bPLUS; }
+		| TIMES   { $$ = (Operator_t) bTIMES; }
+		| DIVIDE  { $$ = (Operator_t) bDIVIDE; }
+		| EQUAL   { $$ = (Operator_t) bEQUAL; }
+		| NEQUAL  { $$ = (Operator_t) bNEQUAL; }
+		| GREATER { $$ = (Operator_t) bGREATER; }
+		| LESS    { $$ = (Operator_t) bLESS; }
 		;
 
 unop                            // List of the binary operators tokens
-		: MINUS   { $$ = (ASTType) MINUS; }
-		| NOT     { $$ = (ASTType) NOT; }
+		: MINUS   { $$ = (Operator_t) uMINUS; }
+		| NOT     { $$ = (Operator_t) uNOT; }
 		;
 
 pars                            // Content of argument comma separated in function call parentheses

@@ -51,6 +51,19 @@
 
 typedef int ASTType;
 
+typedef enum {
+  bMINUS,
+  bPLUS,
+  bTIMES,
+  bDIVIDE,
+  bEQUAL,
+  bNEQUAL,
+  bGREATER,
+  bLESS,
+  uMINUS,
+  uNOT,
+} Operator_t;
+
 /**
  * @brief The most basic expression structure.
  */
