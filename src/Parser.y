@@ -192,6 +192,6 @@ pars                            // Content of argument comma separated in functi
 		;
 
 var                            // variable reference (just a name)
-		: NAME { $$ = ASTIdentifier_create((char*) $1); free($1); }
+		: NAME { $$ = ASTIdentifier_create((char*) $1); }
     ;
 %%

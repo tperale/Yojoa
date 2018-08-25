@@ -79,7 +79,7 @@ ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, in
 
 typedef struct {
   ASTExpression expression;
-  char value[64];
+  char* value;
 } ASTIdentifier;
 int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y);
 void ASTIdentifier_free(void* self);

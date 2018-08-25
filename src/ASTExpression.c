@@ -169,13 +169,14 @@ char* ASTIdentifier_code_gen(void* _self) {
 
 void ASTIdentifier_free(void* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
+  free(self->value);
   if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
 
 ASTIdentifier* ASTIdentifier_create(char* value) {
   ASTIdentifier* result = malloc(sizeof(ASTIdentifier));
-  strcpy(result->value, value);
+  result->value = value;
   result->expression.node.free = ASTIdentifier_free;
   result->expression.node.code_gen = ASTIdentifier_code_gen;
   return result;
