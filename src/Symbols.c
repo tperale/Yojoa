@@ -39,6 +39,20 @@ int SymbolList_new(SymbolList* self, ASTType type, ASTDeclarationVariable* id, A
   return SymbolList_add(self, type, id, ref);
 }
 
+int SymbolList_reserve(SymbolList* self, ASTType type, ASTDeclarationVariable* id) {
+  return SymbolList_add(self, type, id, NULL);
+}
+
+int SymbolList_set(SymbolList* self, ASTDeclarationVariable* identifier, ASTNode* ref) {
+  for (unsigned int i = 0; i < self->size; ++i) {
+    if (ASTIdentifier_equal(self->content[i].identifier->name, identifier->name)) {
+      self->content[i].reference = ref;
+      return 1;
+    }
+  }
+  return 0;
+}
+
 SymbolList* SymbolList_create(void) {
   SymbolList* result = (SymbolList*) malloc(sizeof(SymbolList));
   result->_max_size = 32;

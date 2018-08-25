@@ -26,6 +26,8 @@ size_t SymbolList_add(SymbolList*, ASTType, ASTDeclarationVariable*, ASTNode*);
 void SymbolList_free(SymbolList*);
 int SymbolList_exist(SymbolList*, ASTIdentifier*);
 int SymbolList_new(SymbolList*, ASTType, ASTDeclarationVariable*, ASTNode*);
+int SymbolList_reserve(SymbolList*, ASTType, ASTDeclarationVariable*);
+int SymbolList_set(SymbolList*, ASTDeclarationVariable*, ASTNode*);
 SymbolList* SymbolList_create(void);
 
 #endif

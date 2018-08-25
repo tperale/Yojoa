@@ -15,6 +15,8 @@ ASTProgram* program_struct;
 SymbolList* symbols;
 #define SYMBOL_NEW(x, y, z) if (!SymbolList_new(symbols, x, y, (ASTNode*) z)) { yyerror("Symbol is already defined"); YYABORT; }
 #define SYMBOL_EXIST(x) if (!SymbolList_exist(symbols, x)) { yyerror("Symbol is not defined"); YYABORT; }
+#define SYMBOL_SET(x, y) if (!SymbolList_set(symbols, x, y)) { yyerror("Symbol is not defined"); YYABORT; }
+#define SYMBOL_RESERVE(x, y) if (!SymbolList_reserve(symbols, x, y)) { yyerror("Symbol is already defined"); YYABORT; }
 %}
 
 %error-verbose
@@ -98,7 +100,7 @@ declaration
     ;
 
 fun_declaration                   //
-	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5); SYMBOL_NEW(FUNC, $1, $$); $1->scope = FUNC; }
+	  : var_identifier { SYMBOL_RESERVE(FUNC, $1); } LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $4, $6); SYMBOL_SET($1, (ASTNode*) $$); $1->scope = FUNC; }
 		;
 
 formal_pars                            // formal_pars is the declaration of arguments in parentheses
