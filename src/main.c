@@ -12,7 +12,11 @@ extern SymbolList* symbols;
 
 int main(void) {
   symbols = SymbolList_create();
-  yyparse();
+  if (yyparse()) {
+    printf("Exiting\n");
+    return 1;
+  }
+
   printf("%s\n", ASTProgram_code_gen(program_struct));
   return 0;
 }

@@ -9,7 +9,10 @@
 #include "Symbols.h"
 
 extern int yylex();
-void yyerror(const char *s) { printf("ERROR: %s\n", s); }
+extern int yylineno;
+void yyerror(const char *str) {
+  fprintf(stderr,"[%d] Error: %s\n", yylineno, str);
+}
 
 ASTProgram* program_struct;
 SymbolList* symbols;
@@ -20,6 +23,7 @@ SymbolList* symbols;
 %}
 
 %error-verbose
+%locations
 %output  "Parser.c"
 %defines "Parser.h"
 

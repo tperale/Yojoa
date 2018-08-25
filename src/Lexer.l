@@ -12,6 +12,7 @@
 
 %option outfile="Lexer.c" header-file="Lexer.h"
 %option noyywrap nounput noinput
+%option yylineno
 
 %%
 
