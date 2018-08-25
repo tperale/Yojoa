@@ -15,6 +15,7 @@
 
 %%
 
+\/\*([^*]|\n)*\*\/ ;
 [ \r\n\t]          ;
 "int"              return TOKEN(INT);
 "char"             return TOKEN(CHAR);
