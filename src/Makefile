@@ -1,19 +1,27 @@
 all: tiny
 SRC=./
 CC=gcc
-CFLAGS=-g -Wall -Werror -Wextra -Wshadow -std=gnu11
+CFLAGS=-g -ggdb -Wall -Werror -Wextra -Wshadow -std=gnu11 -D _GNU_SOURCE
 LDFLAGS=-lm
+
+ifeq (0, 1)
+	FLEX_DEBUG=-d
+	BISON_DEBUG=-t
+else
+	FLEX_DEBUG=
+	BISON_DEBUG=
+endif
 
 FILES=$(wildcard ${SRC}*.c) ${SRC}Lexer.c ${SRC}Parser.c
 OBJS=$(subst .c,.o,$(FILES))
 
 Parser.c:	Parser.y
-		bison -v -d -o $@ $^
+		bison ${BISON_DEBUG} -d -o $@ $^
 
 Parser.h: Parser.c
 
 Lexer.c:	Lexer.l Parser.h
-		flex -o $@ $^
+		flex $(FLEX_DEBUG) -o $@ $^
 
 %.o: %.c
 		$(CC) -c $(CFLAGS) -o $@ $<
