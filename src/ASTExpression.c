@@ -239,12 +239,46 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
 
   ASTNode* _func;
   if (!(_func = SymbolList_exist(list, self->name))) {
-    print_error(_self->info.source_line, "Function name '%s' is not defined\n", self->name->value);
+    print_error(_self->info.source_line, "Function name '%s' is not defined", self->name->value);
   }
 
   ASTDeclarationFunction* func = (ASTDeclarationFunction*) _func;
   if (func->parameters->size != self->arguments->size) {
-    print_error(_self->info.source_line, "There is no function '%s' with %d arguments defined\n", self->name->value, self->arguments->size);
+    print_error(_self->info.source_line, "There is no function '%s' with %d arguments defined", self->name->value, self->arguments->size);
+  }
+
+  for (unsigned int i = 0; i < func->parameters->size; ++i) {
+    ASTDeclarationVariable* current_param = (ASTDeclarationVariable*) func->parameters->content[i];
+    ASTType_t param_type = current_param->type == ASTINTEGER ? ASTINTEGER : ASTCHAR;
+    switch (self->arguments->content[i]->info.type) {
+      case ASTCHAR:
+        if (param_type != ASTCHAR) {
+          print_error(_self->info.source_line, "Expected a 'char' in argument number %d", i);
+        }
+        continue;
+      case ASTOPERATOR:
+      case ASTINTEGER:
+        if (param_type != ASTINTEGER) {
+          print_error(_self->info.source_line, "Expected a 'integer' in argument number %d", i);
+        }
+        continue;
+      case ASTFUNCTIONCALL: {
+        ASTDeclarationFunction* tmp = (ASTDeclarationFunction*) SymbolList_exist(list, ((ASTFunctionCall*) self->arguments->content[i])->name);
+        if (tmp->name->type != param_type) {
+          print_error(_self->info.source_line, "Wrong return type for function '%s' in argument number %d", tmp->name->name->value, i);
+        }
+        continue;
+      }
+      case ASTVARIABLE: {
+        ASTDeclarationVariable* tmp = (ASTDeclarationVariable*) SymbolList_exist(list, (ASTIdentifier*) self->arguments->content[i]);
+        if (tmp->type != param_type) {
+          print_error(_self->info.source_line, "Wrong return type for the variable '%s' in argument number %d", tmp->name->value, i);
+        }
+        continue;
+      }
+      default:
+        print_error(_self->info.source_line, "Unknown expression in argument number %d", i);
+    }
   }
 }
 
