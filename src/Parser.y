@@ -16,10 +16,6 @@ void yyerror(const char *str) {
 
 ASTProgram* program_struct;
 SymbolList* symbols;
-#define SYMBOL_NEW(x, y, z) if (!SymbolList_new(symbols, x, y, (ASTNode*) z)) { yyerror("Symbol is already defined"); YYABORT; }
-#define SYMBOL_EXIST(x) if (!SymbolList_exist(symbols, x)) { yyerror("Symbol is not defined"); YYABORT; }
-#define SYMBOL_SET(x, y) if (!SymbolList_set(symbols, x, y)) { yyerror("Symbol is not defined"); YYABORT; }
-#define SYMBOL_RESERVE(x, y) if (!SymbolList_reserve(symbols, x, y)) { yyerror("Symbol is already defined"); YYABORT; }
 %}
 
 %error-verbose
@@ -100,34 +96,34 @@ declarations
 
 declaration
     : fun_declaration             { $$ = (ASTDeclaration*) $1; }
-    | var_declaration             { $$ = (ASTDeclaration*) $1; $1->scope = GLOBAL; }
+    | var_declaration             { $$ = (ASTDeclaration*) $1; }
     ;
 
 fun_declaration                   //
-	  : var_identifier { SYMBOL_RESERVE(FUNC, $1); } LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $4, $6); SYMBOL_SET($1, (ASTNode*) $$); $1->scope = FUNC; }
+	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5, (ASTInfo) {yylineno, ASTFUNCTION}); }
 		;
 
 formal_pars                            // formal_pars is the declaration of arguments in parentheses
 		:                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
-    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); $1->scope = PARAM; SYMBOL_NEW(PARAM, $1, $1); } // a simple declaration
-    | formal_pars COMMA var_identifier { $1->add($$, (void*) $3); $3->scope = PARAM; SYMBOL_NEW(PARAM, $3, $3); } // Can be either multiple declaration separated by commas
+    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); } // a simple declaration
+    | formal_pars COMMA var_identifier { $1->add($$, (void*) $3); } // Can be either multiple declaration separated by commas
 		;
 
 block                                           // The content of a function, if, while. Variable declarations are always done on the top of the block (eg. { int foo; })
-		: LBRACE var_declarations statements RBRACE { $$ = ASTBlock_create($2, $3); }
+		: LBRACE var_declarations statements RBRACE { $$ = ASTBlock_create($2, $3, (ASTInfo) {yylineno, ASTBLOCK}); }
 		;
 
 var_declarations                       // How to do a variable declaration
     :                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); }
-    | var_declarations var_declaration { $1->add($$, (void*) $2); $2->scope = LOCAL; }
+    | var_declarations var_declaration { $1->add($$, (void*) $2); }
 		;
 
 var_declaration                   // How to do a variable declaration
-    : var_identifier SEMICOLON { $$ = $1; SYMBOL_NEW(VAR, $1, $$); } // ex: int foo;
+    : var_identifier SEMICOLON { $$ = $1; } // ex: int foo;
 		;
 
 var_identifier                    // A simple way to identify combination of variable type and name
-    : type var { $$ = ASTDeclarationVariable_create($1, $2); }
+    : type var { $$ = ASTDeclarationVariable_create($1, $2, (ASTInfo) {yylineno, ASTVARIABLE_DECLARATION}); }
     ;
 
 type                              // Their are only two primitive data types (char, int) and the composed data types
@@ -143,29 +139,29 @@ statements                        // Statements express how multiple statement n
 		;
 
 statement                         // Statement express possible actions you can do on the programming language
-	  : IF LPAR exp RPAR statement                 { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, NULL); }
-		| IF LPAR exp RPAR statement ELSE statement  { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, $7); }
-		| WHILE LPAR exp RPAR statement              { $$ = (ASTStatement*) ASTStatementLoop_create($3, $5); }
-		| lexp ASSIGN exp SEMICOLON                  { $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3); } // assignment
-		| RETURN exp SEMICOLON                       { $$ = (ASTStatement*) ASTStatementReturn_create($2); } // return statement
+	  : IF LPAR exp RPAR statement                 { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, NULL, (ASTInfo) {yylineno, ASTCONDITION}); }
+		| IF LPAR exp RPAR statement ELSE statement  { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, $7, (ASTInfo) {yylineno, ASTCONDITION}); }
+		| WHILE LPAR exp RPAR statement              { $$ = (ASTStatement*) ASTStatementLoop_create($3, $5, (ASTInfo) {yylineno, ASTLOOP}); }
+		| lexp ASSIGN exp SEMICOLON                  { $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3, (ASTInfo) {yylineno, ASTASSIGNMENT}); } // assignment
+		| RETURN exp SEMICOLON                       { $$ = (ASTStatement*) ASTStatementReturn_create($2, (ASTInfo) {yylineno, ASTRETURN}); } // return statement
 		| block                                      { $$ = (ASTStatement*) $1; }
-		| WRITE exp                                  { $$ = (ASTStatement*) ASTStatementWrite_create($2); }
-		| READ lexp                                  { $$ = (ASTStatement*) ASTStatementRead_create($2); }
+		| WRITE exp                                  { $$ = (ASTStatement*) ASTStatementWrite_create($2, (ASTInfo) {yylineno, ASTWRITE}); }
+		| READ lexp                                  { $$ = (ASTStatement*) ASTStatementRead_create($2, (ASTInfo) {yylineno, ASTREAD}); }
 		;
 
 exp
 		: lexp                { $$ = (ASTExpression*) $1; }
-		| var LPAR pars RPAR	{ $$ = (ASTExpression*) ASTFunctionCall_create($1, $3); SYMBOL_EXIST($1); }   // function call
-		| exp binop exp       { $$ = (ASTExpression*) ASTOperator_create($1, $3, $2); }   // (eg: foo == bar)
-		| unop exp            { $$ = (ASTExpression*) ASTOperator_create($2, NULL, $1); } // (eg: !foo)
+		| var LPAR pars RPAR	{ $$ = (ASTExpression*) ASTFunctionCall_create($1, $3, (ASTInfo) {yylineno, ASTFUNCTIONCALL}); }   // function call
+		| exp binop exp       { $$ = (ASTExpression*) ASTOperator_create($1, $3, $2, (ASTInfo) {yylineno, ASTOPERATOR}); }   // (eg: foo == bar)
+		| unop exp            { $$ = (ASTExpression*) ASTOperator_create($2, NULL, $1, (ASTInfo) {yylineno, ASTOPERATOR}); } // (eg: !foo)
 		| LPAR exp RPAR       { $$ = $2; }                                                // (eg: (foo))
-		| NUMBER              { $$ = (ASTExpression*) ASTInteger_create($1); }            // (eg: 2)
-		| QCHAR               { $$ = (ASTExpression*) ASTChar_create($1); }               // Just a charachter (eg: 'c')
+		| NUMBER              { $$ = (ASTExpression*) ASTInteger_create($1, (ASTInfo) {yylineno, ASTINTEGER}); }            // (eg: 2)
+		| QCHAR               { $$ = (ASTExpression*) ASTChar_create($1, (ASTInfo) {yylineno, ASTCHAR}); }               // Just a charachter (eg: 'c')
 		// TODO | LENGTH lexp	        { }                                                 // size of an array (eg: length foo)
 		;
 
 lexp                              // left expression are either a variable name or variable name array access
-		: var     { $$ = $1; SYMBOL_EXIST($$); } // (eg: foo)
+		: var     { $$ = $1; } // (eg: foo)
 		// TODO | lexp LBRACK exp RBRACK	// ex: foo[2]
 		;
 
@@ -192,6 +188,6 @@ pars                            // Content of argument comma separated in functi
 		;
 
 var                            // variable reference (just a name)
-		: NAME { $$ = ASTIdentifier_create((char*) $1); }
+		: NAME { $$ = ASTIdentifier_create((char*) $1, (ASTInfo) {yylineno, ASTCHAR}); }
     ;
 %%

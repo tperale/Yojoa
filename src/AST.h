@@ -96,6 +96,7 @@ typedef struct _ASTNode {
   ASTInfo info;
   void (*free)(void*);
   char* (*code_gen)(void*);
+  void (*check)(struct _ASTNode*);
   char* code;
 } ASTNode;
 

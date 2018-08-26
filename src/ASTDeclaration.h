@@ -34,18 +34,9 @@ typedef struct {
   ASTNode node;
 } ASTDeclaration;
 
-typedef enum {
-  NONE,
-  LOCAL,
-  GLOBAL,
-  PARAM,
-  FUNC,
-} ASTScope;
-
 typedef struct ASTDeclarationVariable {
   ASTDeclaration declaration;
   ASTType type;
-  ASTScope scope;
   ASTIdentifier* name;
 } ASTDeclarationVariable;
 
@@ -55,7 +46,7 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(int type, ASTIdentifier* n
 typedef struct {
   ASTDeclaration declaration;
   ASTDeclarationVariable* name;
-  ArrayList* parameters; // This list should be "NULL" terminated.
+  ArrayList* parameters;
   struct ASTBlock* block;
 } ASTDeclarationFunction;
 

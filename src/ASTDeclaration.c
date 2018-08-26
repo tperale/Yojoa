@@ -14,14 +14,13 @@ char* ASTDeclarationVariable_code_gen(void* _self) {
   ASTDeclarationVariable* self = (ASTDeclarationVariable*) _self;
 
   char* type;
-  // if (self->type == INT) {
+  // TODO if (self->type == INT) {
     asprintf(&type, "i32");
   // }
 
   char* scope;
-  if (self->scope == LOCAL) {
-    asprintf(&scope, "local");
-  }
+  // TODO
+  asprintf(&scope, "local");
 
   char* name = self->name->value;
   asprintf(&((ASTNode*) self)->code, "(%s $%s %s)", scope, name, type);
