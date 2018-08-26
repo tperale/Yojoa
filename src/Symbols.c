@@ -36,11 +36,11 @@ void SymbolList_free(SymbolList* self) {
   free(self);
 }
 
-int SymbolList_exist(SymbolList* self, struct ASTIdentifier* identifier) {
+struct _ASTNode* SymbolList_exist(SymbolList* self, struct ASTIdentifier* identifier) {
   for (unsigned int i = 0; i < self->size; ++i) {
-    if (ASTIdentifier_equal(self->content[i].identifier, identifier)) { return 1; }
+    if (ASTIdentifier_equal(self->content[i].identifier, identifier)) { return self->content[i].reference; }
   }
-  return self->parent ? SymbolList_exist(self->parent, identifier) : 0;
+  return self->parent ? SymbolList_exist(self->parent, identifier) : NULL;
 }
 
 int SymbolList_new(SymbolList* self, struct ASTIdentifier* id, ASTNode* ref) {

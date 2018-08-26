@@ -31,7 +31,7 @@ typedef struct _SymbolList {
 SymbolItem* SymbolList_get(SymbolList*, const unsigned int);
 size_t SymbolList_add(SymbolList*, struct ASTIdentifier*, ASTNode*);
 void SymbolList_free(SymbolList*);
-int SymbolList_exist(SymbolList*, struct ASTIdentifier*);
+struct _ASTNode* SymbolList_exist(SymbolList*, struct ASTIdentifier*);
 int SymbolList_new(SymbolList*, struct ASTIdentifier*, ASTNode*);
 SymbolList* SymbolList_create(SymbolList*);
 SymbolList* SymbolList_block_create(SymbolList*, struct ASTBlock*);
