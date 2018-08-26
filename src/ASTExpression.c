@@ -194,7 +194,7 @@ void ASTIdentifier_check(SymbolList* list, ASTNode* _self) {
 
   SymbolList_exist(list, self);
   if (!SymbolList_exist(list, self)) {
-    fprintf(stderr,"[%d] Error: Variable name '%s' is not defined\n", _self->info.source_line, self->value);
+    print_error(_self->info.source_line, "Variable name '%s' is not defined", self->value);
   }
 }
 
@@ -238,7 +238,7 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
   ASTFunctionCall* self = (ASTFunctionCall*) _self;
 
   if (!SymbolList_exist(list, self->name)) {
-    fprintf(stderr,"[%d] Error: Function name '%s' is not defined\n", _self->info.source_line, self->name->value);
+    print_error(_self->info.source_line, "Function name '%s' is not defined\n", self->name->value);
   }
 }
 

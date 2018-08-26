@@ -70,7 +70,7 @@ SymbolList* SymbolList_block_create(SymbolList* parent, struct ASTBlock* block) 
   for (unsigned int i = 0; i < block->variables->size; ++i) {
     ASTNode* node = (ASTNode*) variables[i];
     if (!SymbolList_new(list, variables[i]->name, node)) {
-      fprintf(stderr,"[%d] Error: Variable '%s' is already defined\n", node->info.source_line, variables[i]->name->value);
+      print_error(node->info.source_line, "Variable '%s' is already defined", variables[i]->name->value);
     }
   }
 
@@ -91,7 +91,7 @@ SymbolList* SymbolList_function_create(SymbolList* parent, struct ASTDeclaration
   for (unsigned int i = 0; i < function->parameters->size; ++i) {
     ASTNode* node = (ASTNode*) variables[i];
     if (!SymbolList_new(list, variables[i]->name, node)) {
-      fprintf(stderr,"[%d] Error: Variable '%s' is already defined\n", node->info.source_line, variables[i]->name->value);
+      print_error(node->info.source_line, "Variable '%s' is already defined", variables[i]->name->value);
     }
   }
 

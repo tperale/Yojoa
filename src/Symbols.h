@@ -7,6 +7,7 @@
 #include "ASTDeclaration.h"
 #include "ASTExpression.h"
 #include "AST.h"
+#include "common.h"
 
 struct ASTBlock;
 struct ASTDeclarationFunction;
