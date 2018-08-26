@@ -37,12 +37,12 @@ typedef struct {
 
 typedef struct ASTDeclarationVariable {
   ASTDeclaration declaration;
-  ASTType type;
+  ASTType_t type;
   struct ASTIdentifier* name;
 } ASTDeclarationVariable;
 
 void ASTDeclarationVariable_free(void* self);
-ASTDeclarationVariable* ASTDeclarationVariable_create(int type, struct ASTIdentifier* name, ASTInfo);
+ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType_t type, struct ASTIdentifier* name, ASTInfo);
 
 typedef struct ASTDeclarationFunction {
   ASTDeclaration declaration;

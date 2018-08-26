@@ -90,8 +90,8 @@ program                           // A program is a list of function declaration
 		;
 
 declarations
-    : declaration                 { $$ = ArrayList_create(sizeof(ASTDeclaration*)); $$->add($$, (void*) $1); }
-    | declarations declaration    { $1->add($1, $2); }
+    : declaration                 { $$ = ArrayList_create(sizeof(ASTDeclaration*)); $$->add($$, (ASTNode*) $1); }
+    | declarations declaration    { $1->add($1, (ASTNode*) $2); }
     ;
 
 declaration
@@ -105,8 +105,8 @@ fun_declaration                   //
 
 formal_pars                            // formal_pars is the declaration of arguments in parentheses
 		:                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
-    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (void*) $1); } // a simple declaration
-    | formal_pars COMMA var_identifier { $1->add($$, (void*) $3); } // Can be either multiple declaration separated by commas
+    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (ASTNode*) $1); } // a simple declaration
+    | formal_pars COMMA var_identifier { $1->add($$, (ASTNode*) $3); } // Can be either multiple declaration separated by commas
 		;
 
 block                                           // The content of a function, if, while. Variable declarations are always done on the top of the block (eg. { int foo; })
@@ -115,7 +115,7 @@ block                                           // The content of a function, if
 
 var_declarations                       // How to do a variable declaration
     :                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); }
-    | var_declarations var_declaration { $1->add($$, (void*) $2); }
+    | var_declarations var_declaration { $1->add($$, (ASTNode*) $2); }
 		;
 
 var_declaration                   // How to do a variable declaration
@@ -127,14 +127,14 @@ var_identifier                    // A simple way to identify combination of var
     ;
 
 type                              // Their are only two primitive data types (char, int) and the composed data types
-		: INT  { $$ = (ASTType) INT; }
-		| CHAR { $$ = (ASTType) CHAR; }
+		: INT  { $$ = (ASTType_t) ASTINTEGER; }
+		| CHAR { $$ = (ASTType_t) ASTCHAR; }
 		/* | type LBRACK exp RBRACK // array type (eg: int[4]) */
 		;
 
 statements                        // Statements express how multiple statement need to be combined
 		:                                { $$ = ArrayList_create(sizeof(ASTStatement*)); } // or no statement
-    | statement                      { $$ = ArrayList_create(sizeof(ASTStatement*)); $$->add($$, (void*) $1); }
+    | statement                      { $$ = ArrayList_create(sizeof(ASTStatement*)); $$->add($$, (ASTNode*) $1); }
 	  | statements statement           { $1->add($$, (void*) $2); } // Can be either multiple statement semicolon separated
 		;
 
@@ -182,12 +182,12 @@ unop                            // List of the binary operators tokens
 		;
 
 pars                            // Content of argument comma separated in function call parentheses
-		: exp COMMA pars { $$ = ArrayList_create(sizeof(ASTExpression*)); $$->add($$, (void*) $1); $$->add_list($$, $3); }
-    | exp            { $$ = ArrayList_create(sizeof(ASTExpression*)); $$->add($$, (void*) $1); }
+		: exp COMMA pars { $$ = ArrayList_create(sizeof(ASTExpression*)); $$->add($$, (ASTNode*) $1); $$->add_list($$, $3); }
+    | exp            { $$ = ArrayList_create(sizeof(ASTExpression*)); $$->add($$, (ASTNode*) $1); }
 		|                { $$ = ArrayList_create(sizeof(ASTExpression*)); }                                                 // Empty
 		;
 
 var                            // variable reference (just a name)
-		: NAME { $$ = ASTIdentifier_create((char*) $1, (ASTInfo) {yylineno, ASTCHAR}); }
+		: NAME { $$ = ASTIdentifier_create((char*) $1, (ASTInfo) {yylineno, ASTVARIABLE}); }
     ;
 %%
