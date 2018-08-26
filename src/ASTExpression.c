@@ -237,8 +237,14 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
   _self->scope = list;
   ASTFunctionCall* self = (ASTFunctionCall*) _self;
 
-  if (!SymbolList_exist(list, self->name)) {
+  ASTNode* _func;
+  if (!(_func = SymbolList_exist(list, self->name))) {
     print_error(_self->info.source_line, "Function name '%s' is not defined\n", self->name->value);
+  }
+
+  ASTDeclarationFunction* func = (ASTDeclarationFunction*) _func;
+  if (func->parameters->size != self->arguments->size) {
+    print_error(_self->info.source_line, "There is no function '%s' with %d arguments defined\n", self->name->value, self->arguments->size);
   }
 }
 
