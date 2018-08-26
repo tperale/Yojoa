@@ -50,7 +50,7 @@ typedef struct ASTDeclarationVariable {
 } ASTDeclarationVariable;
 
 void ASTDeclarationVariable_free(void* self);
-ASTDeclarationVariable* ASTDeclarationVariable_create(int type, ASTIdentifier* name);
+ASTDeclarationVariable* ASTDeclarationVariable_create(int type, ASTIdentifier* name, ASTInfo);
 
 typedef struct {
   ASTDeclaration declaration;
@@ -60,6 +60,6 @@ typedef struct {
 } ASTDeclarationFunction;
 
 void ASTDeclarationFunction_free(void* self);
-ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ArrayList* parameters, struct ASTBlock* block);
+ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ArrayList* parameters, struct ASTBlock* block, ASTInfo);
 
 #endif

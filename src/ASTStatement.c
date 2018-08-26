@@ -47,13 +47,14 @@ void ASTBlock_free(void* _self) {
   free(self);
 }
 
-ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements) {
+ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements, ASTInfo info) {
   ASTBlock* result = (ASTBlock*) malloc(sizeof(ASTBlock));
   result->variables = var_decl;
   result->statements = statements;
 
   result->statement.node.free = ASTBlock_free;
   result->statement.node.code_gen = ASTBlock_code_gen;
+  result->statement.node.info = info;
 
   return result;
 }
@@ -80,13 +81,14 @@ void ASTStatementAssignment_free(void* _self) {
   free(self);
 }
 
-ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, ASTExpression* rvalue) {
+ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, ASTExpression* rvalue, ASTInfo info) {
   ASTStatementAssignment* result = (ASTStatementAssignment*) malloc(sizeof(ASTStatementAssignment));
   result->lvalue = lvalue;
   result->rvalue = rvalue;
 
   result->statement.node.free = ASTStatementAssignment_free;
   result->statement.node.code_gen = ASTStatementAssignment_code_gen;
+  result->statement.node.info = info;
 
   return result;
 }
@@ -117,7 +119,7 @@ void ASTStatementCondition_free(void* _self) {
   free(self);
 }
 
-ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block) {
+ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block, ASTInfo info) {
   ASTStatementCondition* result = (ASTStatementCondition*) malloc(sizeof(ASTStatementCondition));
 
   result->condition = cond;
@@ -126,6 +128,7 @@ ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStat
 
   result->statement.node.free = ASTStatementCondition_free;
   result->statement.node.code_gen = ASTStatementCondition_code_gen;
+  result->statement.node.info = info;
 
   return result;
 }
@@ -151,7 +154,7 @@ void ASTStatementLoop_free(void* _self) {
   free(self);
 }
 
-ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* content) {
+ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* content, ASTInfo info) {
   ASTStatementLoop* result = (ASTStatementLoop*) malloc(sizeof(ASTStatementLoop));
 
   result->condition = cond;
@@ -159,6 +162,7 @@ ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* con
 
   result->statement.node.free = ASTStatementLoop_free;
   result->statement.node.code_gen = ASTStatementLoop_code_gen;
+  result->statement.node.info = info;
 
   return result;
 }
@@ -182,13 +186,14 @@ void ASTStatementReturn_free(void* _self) {
   free(self);
 }
 
-ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value) {
+ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value, ASTInfo info) {
   ASTStatementReturn* result = (ASTStatementReturn*) malloc(sizeof(ASTStatementReturn));
 
   result->value = value;
 
   result->statement.node.free = ASTStatementReturn_free;
   result->statement.node.code_gen = ASTStatementReturn_code_gen;
+  result->statement.node.info = info;
 
   return result;
 }
@@ -210,12 +215,13 @@ void ASTStatementWrite_free(void* _self) {
   free(self);
 }
 
-ASTStatementWrite* ASTStatementWrite_create(ASTExpression* value) {
+ASTStatementWrite* ASTStatementWrite_create(ASTExpression* value, ASTInfo info) {
   ASTStatementWrite* result = (ASTStatementWrite*) malloc(sizeof(ASTStatementWrite));
   result->value = value;
 
   result->statement.node.free = ASTStatementWrite_free;
   result->statement.node.code_gen = ASTStatementWrite_code_gen;
+  result->statement.node.info = info;
 
   return result;
 }
@@ -237,12 +243,13 @@ void ASTStatementRead_free(void* _self) {
   free(self);
 }
 
-ASTStatementRead* ASTStatementRead_create(ASTIdentifier* ref) {
+ASTStatementRead* ASTStatementRead_create(ASTIdentifier* ref, ASTInfo info) {
   ASTStatementRead* result = (ASTStatementRead*) malloc(sizeof(ASTStatementRead));
   result->ref = ref;
 
   result->statement.node.free = ASTStatementRead_free;
   result->statement.node.code_gen = ASTStatementRead_code_gen;
+  result->statement.node.info = info;
 
   return result;
 }

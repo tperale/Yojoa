@@ -38,7 +38,7 @@ void ASTDeclarationVariable_free(void* _self) {
   free(self);
 }
 
-ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType type, ASTIdentifier* name) {
+ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType type, ASTIdentifier* name, ASTInfo info) {
   ASTDeclarationVariable* result = malloc(sizeof(ASTDeclarationVariable));
 
   result->type = type;
@@ -46,6 +46,7 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType type, ASTIdentifie
 
   result->declaration.node.free = ASTDeclarationVariable_free;
   result->declaration.node.code_gen = ASTDeclarationVariable_code_gen;
+  result->declaration.node.info = info;
 
   return result;
 }
@@ -86,7 +87,7 @@ void ASTDeclarationFunction_free(void* _self) {
   free(self);
 }
 
-ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ArrayList* parameters, ASTBlock* block) {
+ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* name, ArrayList* parameters, ASTBlock* block, ASTInfo info) {
   ASTDeclarationFunction* result = (ASTDeclarationFunction*) malloc(sizeof(ASTDeclarationFunction));
 
   result->name = name;
@@ -95,6 +96,7 @@ ASTDeclarationFunction* ASTDeclarationFunction_create(ASTDeclarationVariable* na
 
   result->declaration.node.free = ASTDeclarationFunction_free;
   result->declaration.node.code_gen = ASTDeclarationFunction_code_gen;
+  result->declaration.node.info = info;
 
   return result;
 }

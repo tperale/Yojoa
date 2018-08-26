@@ -52,21 +52,21 @@ typedef struct {
   int value;
 } ASTInteger;
 void ASTInteger_free(void* _self);
-ASTInteger* ASTInteger_create(int value);
+ASTInteger* ASTInteger_create(int value, ASTInfo);
 
 typedef struct {
   ASTExpression expression;
   char value;
 } ASTChar;
 void ASTChar_free(void* _self);
-ASTChar* ASTChar_create(char value);
+ASTChar* ASTChar_create(char value, ASTInfo);
 
 typedef struct {
   ASTExpression expression;
   char* value;
 } ASTString;
 void ASTString_free(void* _self);
-ASTString* ASTString_create(char* value);
+ASTString* ASTString_create(char* value, ASTInfo);
 
 typedef struct {
   ASTExpression expression;
@@ -75,7 +75,7 @@ typedef struct {
   Operator_t operator_token;
 } ASTOperator;
 void ASTOperator_free(void* _self);
-ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, int operator_token);
+ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, int operator_token, ASTInfo);
 
 typedef struct {
   ASTExpression expression;
@@ -83,7 +83,7 @@ typedef struct {
 } ASTIdentifier;
 int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y);
 void ASTIdentifier_free(void* self);
-ASTIdentifier* ASTIdentifier_create(char* value);
+ASTIdentifier* ASTIdentifier_create(char* value, ASTInfo);
 
 typedef struct {
   ASTExpression expression;
@@ -91,7 +91,7 @@ typedef struct {
   ArrayList* arguments;
 } ASTFunctionCall;
 void ASTFunctionCall_free(void* _self);
-ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* arguments);
+ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* arguments, ASTInfo);
 
 // TODO ASTArrayAccessor for array type (eg: <varname>[<number>] or for array declaration int[4])
 #endif

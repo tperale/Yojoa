@@ -26,11 +26,12 @@ void ASTInteger_free(void* _self) {
   free(self);
 }
 
-ASTInteger* ASTInteger_create(int value) {
+ASTInteger* ASTInteger_create(int value, ASTInfo info) {
   ASTInteger* result = malloc(sizeof(ASTInteger));
   result->value = value;
   result->expression.node.free = ASTInteger_free;
   result->expression.node.code_gen = ASTInteger_code_gen;
+  result->expression.node.info = info;
   return result;
 }
 
@@ -50,11 +51,12 @@ void ASTChar_free(void* _self) {
   free(self);
 }
 
-ASTChar* ASTChar_create(char value) {
+ASTChar* ASTChar_create(char value, ASTInfo info) {
   ASTChar* result = malloc(sizeof(ASTChar));
   result->value = value;
   result->expression.node.free = ASTChar_free;
   result->expression.node.code_gen = ASTChar_code_gen;
+  result->expression.node.info = info;
   return result;
 }
 
@@ -77,11 +79,12 @@ void ASTString_free(void* _self) {
   free(self);
 }
 
-ASTString* ASTString_create(char* value) {
+ASTString* ASTString_create(char* value, ASTInfo info) {
   ASTString* result = malloc(sizeof(ASTString));
   result->value = value;
   result->expression.node.free = ASTString_free;
   result->expression.node.code_gen = ASTString_code_gen;
+  result->expression.node.info = info;
   return result;
 }
 
@@ -141,13 +144,14 @@ void ASTOperator_free(void* _self) {
   free(self);
 }
 
-ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, int operator_token) {
+ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, int operator_token, ASTInfo info) {
   ASTOperator* result = malloc(sizeof(ASTOperator));
   result->lvalue = lvalue;
   result->rvalue = rvalue;
   result->operator_token = operator_token;
   result->expression.node.free = ASTOperator_free;
   result->expression.node.code_gen = ASTOperator_code_gen;
+  result->expression.node.info = info;
   return result;
 }
 
@@ -174,11 +178,12 @@ void ASTIdentifier_free(void* _self) {
   free(self);
 }
 
-ASTIdentifier* ASTIdentifier_create(char* value) {
+ASTIdentifier* ASTIdentifier_create(char* value, ASTInfo info) {
   ASTIdentifier* result = malloc(sizeof(ASTIdentifier));
   result->value = value;
   result->expression.node.free = ASTIdentifier_free;
   result->expression.node.code_gen = ASTIdentifier_code_gen;
+  result->expression.node.info = info;
   return result;
 }
 
@@ -215,11 +220,12 @@ void ASTFunctionCall_free(void* _self) {
   free(self);
 }
 
-ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* arguments) {
+ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* arguments, ASTInfo info) {
   ASTFunctionCall* result = malloc(sizeof(ASTFunctionCall));
   result->name = name;
   result->arguments = arguments;
   result->expression.node.free = ASTFunctionCall_free;
   result->expression.node.code_gen = ASTFunctionCall_code_gen;
+  result->expression.node.info = info;
   return result;
 }

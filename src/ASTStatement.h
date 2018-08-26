@@ -57,7 +57,7 @@ typedef struct ASTBlock {
 } ASTBlock;
 
 void ASTBlock_free(void*);
-ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements);
+ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
@@ -66,7 +66,7 @@ typedef struct {
 } ASTStatementAssignment;
 
 void ASTStatementAssignment_free(void* self);
-ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, ASTExpression* rvalue);
+ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, ASTExpression* rvalue, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
@@ -76,7 +76,7 @@ typedef struct {
 } ASTStatementCondition;
 
 void ASTStatementCondition_free(void* _self);
-ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block);
+ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
@@ -85,7 +85,7 @@ typedef struct {
 } ASTStatementLoop;
 
 void ASTStatementLoop_free(void* _self);
-ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* content);
+ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* content, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
@@ -93,7 +93,7 @@ typedef struct {
 } ASTStatementReturn;
 
 void ASTStatementReturn_free(void* _self);
-ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value);
+ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
@@ -101,7 +101,7 @@ typedef struct {
 } ASTStatementWrite;
 
 void ASTStatementWrite_free(void* _self);
-ASTStatementWrite* ASTStatementWrite_create(ASTExpression*);
+ASTStatementWrite* ASTStatementWrite_create(ASTExpression*, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
@@ -109,6 +109,6 @@ typedef struct {
 } ASTStatementRead;
 
 void ASTStatementRead_free(void* _self);
-ASTStatementRead* ASTStatementRead_create(ASTIdentifier*);
+ASTStatementRead* ASTStatementRead_create(ASTIdentifier*, ASTInfo);
 
 #endif

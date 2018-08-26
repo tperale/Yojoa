@@ -64,10 +64,36 @@ typedef enum {
   uNOT,
 } Operator_t;
 
+typedef enum {
+  ASTNONE,
+  ASTPROGRAM,
+  ASTFUNCTION,
+  ASTVARIABLE_DECLARATION,
+  ASTPARAM,
+  ASTBLOCK,
+  ASTASSIGNMENT,
+  ASTLOOP,
+  ASTCONDITION,
+  ASTRETURN,
+  ASTIDENTIFIER,
+  ASTOPERATOR,
+  ASTINTEGER,
+  ASTCHAR,
+  ASTFUNCTIONCALL,
+  ASTWRITE,
+  ASTREAD,
+} ASTType_t;
+
+typedef struct {
+  int source_line;
+  ASTType_t type;
+} ASTInfo;
+
 /**
  * @brief The most basic expression structure.
  */
 typedef struct _ASTNode {
+  ASTInfo info;
   void (*free)(void*);
   char* (*code_gen)(void*);
   char* code;
