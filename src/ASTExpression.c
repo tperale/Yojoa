@@ -115,12 +115,39 @@ ASTString* ASTString_create(char* value, ASTInfo info) {
 //   ASTExpression* rvalue;
 //   Operator_t operator_token;
 // } ASTOperator;
+static void _ASTOperator_check_return_type(SymbolList* list, ASTNode* x) {
+  switch (x->info.type) {
+    case ASTOPERATOR:
+    case ASTINTEGER:
+      break;
+    case ASTFUNCTIONCALL: {
+      ASTDeclarationFunction* tmp = (ASTDeclarationFunction*) SymbolList_exist(list, ((ASTFunctionCall*) x)->name);
+      if (tmp->name->type != ASTINTEGER) {
+        print_error(x->info.source_line, "Invalid return type for function '%s', expected an integer", tmp->name->name->value);
+      }
+      break;
+    }
+    case ASTVARIABLE: {
+      ASTDeclarationVariable* tmp = (ASTDeclarationVariable*) SymbolList_exist(list, (ASTIdentifier*) x);
+      if (tmp->type != ASTINTEGER) {
+        print_error(x->info.source_line, "Invalid variable type for '%s', expected an integer ", tmp->name->value);
+      }
+      break;
+    }
+    default:
+      print_error(x->info.source_line, "Unknown expression in the operator");
+  }
+}
+
 void ASTOperator_check(SymbolList* list, ASTNode* _self) {
   _self->scope = list;
   ASTOperator* self = (ASTOperator*) _self;
 
   ((ASTNode*) self->lvalue)->check(list, (ASTNode*) self->lvalue);
   ((ASTNode*) self->rvalue)->check(list, (ASTNode*) self->rvalue);
+  _ASTOperator_check_return_type(list, (ASTNode*) self->lvalue);
+  _ASTOperator_check_return_type(list, (ASTNode*) self->rvalue);
+  // TODO Handle the special case for "==" and "!-" which could be done with char.
 }
 
 char* ASTOperator_code_gen(void* _self) {
@@ -265,14 +292,14 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
       case ASTFUNCTIONCALL: {
         ASTDeclarationFunction* tmp = (ASTDeclarationFunction*) SymbolList_exist(list, ((ASTFunctionCall*) self->arguments->content[i])->name);
         if (tmp->name->type != param_type) {
-          print_error(_self->info.source_line, "Wrong return type for function '%s' in argument number %d", tmp->name->name->value, i);
+          print_error(_self->info.source_line, "Invalid return type for function '%s' in argument number %d", tmp->name->name->value, i);
         }
         continue;
       }
       case ASTVARIABLE: {
         ASTDeclarationVariable* tmp = (ASTDeclarationVariable*) SymbolList_exist(list, (ASTIdentifier*) self->arguments->content[i]);
         if (tmp->type != param_type) {
-          print_error(_self->info.source_line, "Wrong return type for the variable '%s' in argument number %d", tmp->name->value, i);
+          print_error(_self->info.source_line, "Invalid type for the variable '%s' in argument number %d", tmp->name->value, i);
         }
         continue;
       }
