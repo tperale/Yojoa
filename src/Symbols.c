@@ -20,6 +20,17 @@ size_t SymbolList_add(SymbolList* self, struct ASTIdentifier* id, ASTNode* ref) 
   return self->size += 1;
 }
 
+size_t SymbolList_children_add(SymbolList* self, SymbolList* child) {
+  if (self->_childrens_size >= self->_childrens_max_size) {
+    self->_childrens_max_size *= 2;
+    self->_childrens = realloc(self->_childrens, sizeof(struct _SymbolList*) * self->_childrens_max_size);
+  }
+
+  self->_childrens[self->_childrens_size] = child;
+
+  return self->_childrens_size += 1;
+}
+
 void SymbolList_free(SymbolList* self) {
   free(self->content);
   free(self);
@@ -41,6 +52,9 @@ int SymbolList_new(SymbolList* self, struct ASTIdentifier* id, ASTNode* ref) {
 
 SymbolList* SymbolList_create(SymbolList* parent) {
   SymbolList* result = (SymbolList*) malloc(sizeof(SymbolList));
+  result->_childrens_size = 0;
+  result->_childrens_max_size = 32;
+  result->_childrens = malloc(sizeof(struct _SymbolList*) * result->_max_size);
   result->_max_size = 32;
   result->size = 0;
   result->content = malloc(sizeof(SymbolItem) * result->_max_size);
@@ -50,6 +64,7 @@ SymbolList* SymbolList_create(SymbolList* parent) {
 
 SymbolList* SymbolList_block_create(SymbolList* parent, struct ASTBlock* block) {
   SymbolList* list = SymbolList_create(parent);
+  SymbolList_children_add(parent, list);
 
   ASTDeclarationVariable** variables = (ASTDeclarationVariable**) block->variables->content;
   for (unsigned int i = 0; i < block->variables->size; ++i) {
@@ -70,6 +85,7 @@ SymbolList* SymbolList_block_create(SymbolList* parent, struct ASTBlock* block) 
 
 SymbolList* SymbolList_function_create(SymbolList* parent, struct ASTDeclarationFunction* function) {
   SymbolList* list = SymbolList_create(parent);
+  SymbolList_children_add(parent, list);
 
   ASTDeclarationVariable** variables = (ASTDeclarationVariable**) function->parameters->content;
   for (unsigned int i = 0; i < function->parameters->size; ++i) {
