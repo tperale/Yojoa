@@ -83,6 +83,7 @@ typedef enum {
   ASTFUNCTIONCALL,
   ASTWRITE,
   ASTREAD,
+  ASTVARIABLE,
 } ASTType_t;
 
 typedef struct {
