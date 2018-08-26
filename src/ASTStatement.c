@@ -6,6 +6,11 @@
 //   ArrayList* variables; // containing ASTDeclarationVariable
 //   ArrayList* statements; // containing ASTStatement
 // } ASTBlock;
+void ASTBlock_check(SymbolList* list, ASTNode* _self) {
+  ASTBlock* self = (ASTBlock*) _self;
+  SymbolList_block_create(list, self); // TODO Should return this or put yourself into children of "list"
+}
+
 char* ASTBlock_code_gen(void* _self) {
   ASTBlock* self = (ASTBlock*) _self;
 
@@ -54,6 +59,7 @@ ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements, ASTInfo in
 
   result->statement.node.free = ASTBlock_free;
   result->statement.node.code_gen = ASTBlock_code_gen;
+  result->statement.node.check = ASTBlock_check;
   result->statement.node.info = info;
 
   return result;
@@ -64,6 +70,12 @@ ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements, ASTInfo in
 //   ASTIdentifier* lvalue;
 //   ASTExpression* rvalue;
 // } ASTStatementAssignment;
+void ASTStatementAssignment_check(SymbolList* list, ASTNode* _self) {
+  ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
+  ((ASTNode*) self->lvalue)->check(list, (ASTNode*) self->lvalue);
+  ((ASTNode*) self->rvalue)->check(list, (ASTNode*) self->rvalue);
+}
+
 char* ASTStatementAssignment_code_gen(void* _self) {
   ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
 
@@ -81,13 +93,14 @@ void ASTStatementAssignment_free(void* _self) {
   free(self);
 }
 
-ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, ASTExpression* rvalue, ASTInfo info) {
+ASTStatementAssignment* ASTStatementAssignment_create(struct ASTIdentifier* lvalue, struct ASTExpression* rvalue, ASTInfo info) {
   ASTStatementAssignment* result = (ASTStatementAssignment*) malloc(sizeof(ASTStatementAssignment));
   result->lvalue = lvalue;
   result->rvalue = rvalue;
 
   result->statement.node.free = ASTStatementAssignment_free;
   result->statement.node.code_gen = ASTStatementAssignment_code_gen;
+  result->statement.node.check = ASTStatementAssignment_check;
   result->statement.node.info = info;
 
   return result;
@@ -99,6 +112,14 @@ ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, AST
 //   ASTBlock* if_block;
 //   ASTBlock* else_block;
 // } ASTStatementCondition;
+void ASTStatementCondition_check(SymbolList* list, ASTNode* _self) {
+  ASTStatementCondition* self = (ASTStatementCondition*) _self;
+  ((ASTNode*) self->condition)->check(list, (ASTNode*) self->condition);
+  if (self->else_block) {
+    ((ASTNode*) self->else_block)->check(list, (ASTNode*) self->else_block);
+  }
+}
+
 char* ASTStatementCondition_code_gen(void* _self) {
   ASTStatementCondition* self = (ASTStatementCondition*) _self;
 
@@ -119,7 +140,7 @@ void ASTStatementCondition_free(void* _self) {
   free(self);
 }
 
-ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block, ASTInfo info) {
+ASTStatementCondition* ASTStatementCondition_create(struct ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block, ASTInfo info) {
   ASTStatementCondition* result = (ASTStatementCondition*) malloc(sizeof(ASTStatementCondition));
 
   result->condition = cond;
@@ -128,6 +149,7 @@ ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStat
 
   result->statement.node.free = ASTStatementCondition_free;
   result->statement.node.code_gen = ASTStatementCondition_code_gen;
+  result->statement.node.check = ASTStatementCondition_check;
   result->statement.node.info = info;
 
   return result;
@@ -138,6 +160,12 @@ ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStat
 //   ASTExpression* condition;
 //   ASTBlock* content;
 // } ASTStatementLoop;
+void ASTStatementLoop_check(SymbolList* list, ASTNode* _self) {
+  ASTStatementLoop* self = (ASTStatementLoop*) _self;
+  ((ASTNode*) self->condition)->check(list, (ASTNode*) self->condition);
+  ((ASTNode*) self->content)->check(list, (ASTNode*) self->content);
+}
+
 char* ASTStatementLoop_code_gen(void* _self) {
   ASTStatementLoop* self = (ASTStatementLoop*) _self;
   char* condition_code = ((ASTNode*) self->condition)->code_gen(self->condition);
@@ -154,7 +182,7 @@ void ASTStatementLoop_free(void* _self) {
   free(self);
 }
 
-ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* content, ASTInfo info) {
+ASTStatementLoop* ASTStatementLoop_create(struct ASTExpression* cond, ASTStatement* content, ASTInfo info) {
   ASTStatementLoop* result = (ASTStatementLoop*) malloc(sizeof(ASTStatementLoop));
 
   result->condition = cond;
@@ -162,6 +190,7 @@ ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* con
 
   result->statement.node.free = ASTStatementLoop_free;
   result->statement.node.code_gen = ASTStatementLoop_code_gen;
+  result->statement.node.check = ASTStatementLoop_check;
   result->statement.node.info = info;
 
   return result;
@@ -171,6 +200,12 @@ ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* con
 //   ASTStatement statement;
 //   ASTExpression* value;
 // } ASTStatementReturn;
+void ASTStatementReturn_check(SymbolList* list, ASTNode* _self) {
+  ASTStatementReturn* self = (ASTStatementReturn*) _self;
+
+  ((ASTNode*) self->value)->check(list, (ASTNode*) self->value);
+}
+
 char* ASTStatementReturn_code_gen(void* _self) {
   ASTStatementReturn* self = (ASTStatementReturn*) _self;
 
@@ -186,13 +221,14 @@ void ASTStatementReturn_free(void* _self) {
   free(self);
 }
 
-ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value, ASTInfo info) {
+ASTStatementReturn* ASTStatementReturn_create(struct ASTExpression* value, ASTInfo info) {
   ASTStatementReturn* result = (ASTStatementReturn*) malloc(sizeof(ASTStatementReturn));
 
   result->value = value;
 
   result->statement.node.free = ASTStatementReturn_free;
   result->statement.node.code_gen = ASTStatementReturn_code_gen;
+  result->statement.node.check = ASTStatementReturn_check;
   result->statement.node.info = info;
 
   return result;
@@ -202,6 +238,11 @@ ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value, ASTInfo info
 //   ASTStatement statement;
 //   ASTExpression* value;
 // } ASTStatementWrite;
+void ASTStatementWrite_check(SymbolList* list, ASTNode* _self) {
+  ASTStatementWrite* self = (ASTStatementWrite*) _self;
+  ((ASTNode*) self->value)->check(list, (ASTNode*) self->value);
+}
+
 char* ASTStatementWrite_code_gen(void* _self) {
   ASTStatementWrite* self = (ASTStatementWrite*) _self;
 
@@ -215,12 +256,13 @@ void ASTStatementWrite_free(void* _self) {
   free(self);
 }
 
-ASTStatementWrite* ASTStatementWrite_create(ASTExpression* value, ASTInfo info) {
+ASTStatementWrite* ASTStatementWrite_create(struct ASTExpression* value, ASTInfo info) {
   ASTStatementWrite* result = (ASTStatementWrite*) malloc(sizeof(ASTStatementWrite));
   result->value = value;
 
   result->statement.node.free = ASTStatementWrite_free;
   result->statement.node.code_gen = ASTStatementWrite_code_gen;
+  result->statement.node.check = ASTStatementWrite_check;
   result->statement.node.info = info;
 
   return result;
@@ -230,9 +272,14 @@ ASTStatementWrite* ASTStatementWrite_create(ASTExpression* value, ASTInfo info) 
 //   ASTStatement statement;
 //   ASTIdentifier* ref;
 // } ASTStatementRead;
+void ASTStatementRead_check(SymbolList* list, ASTNode* _self) {
+  ASTStatementRead* self = (ASTStatementRead*) _self;
+  ((ASTNode*) self->ref)->check(list, (ASTNode*) self->ref);
+}
+
 char* ASTStatementRead_code_gen(void* _self) {
   ASTStatementRead* self = (ASTStatementRead*) _self;
-
+  // TODO
   return ((ASTNode*) self)->code;
 }
 
@@ -243,12 +290,13 @@ void ASTStatementRead_free(void* _self) {
   free(self);
 }
 
-ASTStatementRead* ASTStatementRead_create(ASTIdentifier* ref, ASTInfo info) {
+ASTStatementRead* ASTStatementRead_create(struct ASTIdentifier* ref, ASTInfo info) {
   ASTStatementRead* result = (ASTStatementRead*) malloc(sizeof(ASTStatementRead));
   result->ref = ref;
 
   result->statement.node.free = ASTStatementRead_free;
   result->statement.node.code_gen = ASTStatementRead_code_gen;
+  result->statement.node.check = ASTStatementRead_check;
   result->statement.node.info = info;
 
   return result;

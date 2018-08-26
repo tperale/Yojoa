@@ -89,6 +89,8 @@ typedef struct {
   ASTType_t type;
 } ASTInfo;
 
+struct _SymbolList;
+
 /**
  * @brief The most basic expression structure.
  */
@@ -96,7 +98,7 @@ typedef struct _ASTNode {
   ASTInfo info;
   void (*free)(void*);
   char* (*code_gen)(void*);
-  void (*check)(struct _ASTNode*);
+  void (*check)(struct _SymbolList*, struct _ASTNode*);
   char* code;
 } ASTNode;
 

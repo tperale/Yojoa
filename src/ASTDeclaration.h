@@ -26,6 +26,7 @@
 //                +----------------------------+
 
 struct ASTBlock;
+struct ASTIdentifier;
 
 /**
  * @brief Base data structure used for declaration.
@@ -37,13 +38,13 @@ typedef struct {
 typedef struct ASTDeclarationVariable {
   ASTDeclaration declaration;
   ASTType type;
-  ASTIdentifier* name;
+  struct ASTIdentifier* name;
 } ASTDeclarationVariable;
 
 void ASTDeclarationVariable_free(void* self);
-ASTDeclarationVariable* ASTDeclarationVariable_create(int type, ASTIdentifier* name, ASTInfo);
+ASTDeclarationVariable* ASTDeclarationVariable_create(int type, struct ASTIdentifier* name, ASTInfo);
 
-typedef struct {
+typedef struct ASTDeclarationFunction {
   ASTDeclaration declaration;
   ASTDeclarationVariable* name;
   ArrayList* parameters;

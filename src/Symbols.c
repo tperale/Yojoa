@@ -6,7 +6,7 @@ SymbolItem* SymbolList_get(SymbolList* self, const unsigned int index) {
   return &self->content[index];
 }
 
-size_t SymbolList_add(SymbolList* self, ASTIdentifier* id, ASTNode* ref) {
+size_t SymbolList_add(SymbolList* self, struct ASTIdentifier* id, ASTNode* ref) {
   if (self->size >= self->_max_size) {
     self->_max_size *= 2;
     self->content = realloc(self->content, sizeof(SymbolItem) * self->_max_size);
@@ -25,14 +25,14 @@ void SymbolList_free(SymbolList* self) {
   free(self);
 }
 
-int SymbolList_exist(SymbolList* self, ASTIdentifier* identifier) {
+int SymbolList_exist(SymbolList* self, struct ASTIdentifier* identifier) {
   for (unsigned int i = 0; i < self->size; ++i) {
     if (ASTIdentifier_equal(self->content[i].identifier, identifier)) { return 1; }
   }
-  return 0;
+  return self->parent ? SymbolList_exist(self->parent, identifier) : 0;
 }
 
-int SymbolList_new(SymbolList* self, ASTIdentifier* id, ASTNode* ref) {
+int SymbolList_new(SymbolList* self, struct ASTIdentifier* id, ASTNode* ref) {
   if (SymbolList_exist(self, id)) {
     return 0;
   }
@@ -48,7 +48,7 @@ SymbolList* SymbolList_create(SymbolList* parent) {
   return result;
 }
 
-static SymbolList* SymbolList_block_create(SymbolList* parent, ASTBlock* block) {
+SymbolList* SymbolList_block_create(SymbolList* parent, struct ASTBlock* block) {
   SymbolList* list = SymbolList_create(parent);
 
   ASTDeclarationVariable** variables = (ASTDeclarationVariable**) block->variables->content;
@@ -62,13 +62,13 @@ static SymbolList* SymbolList_block_create(SymbolList* parent, ASTBlock* block) 
   ASTNode** statements = (ASTNode**) block->statements->content;
   statements = (ASTNode**) statements;
   for (unsigned int i = 0; i < block->statements->size; ++i) {
-    //statements[i]->check(statements[i]);
+    statements[i]->check(list, statements[i]);
   }
 
   return list;
 }
 
-static SymbolList* SymbolList_function_create(SymbolList* parent, ASTDeclarationFunction* function) {
+SymbolList* SymbolList_function_create(SymbolList* parent, struct ASTDeclarationFunction* function) {
   SymbolList* list = SymbolList_create(parent);
 
   ASTDeclarationVariable** variables = (ASTDeclarationVariable**) function->parameters->content;

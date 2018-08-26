@@ -3,6 +3,7 @@
 
 #include "ASTDeclaration.h"
 #include "ASTExpression.h"
+#include "Symbols.h"
 #include "ArrayList.h"
 
 //                +------------------+--------------------+
@@ -42,6 +43,7 @@
 //      +-------------------+
 
 struct ASTDeclarationVariable;
+struct ASTIdentifier;
 
 /**
  * @brief Base data structure used for statements.
@@ -61,54 +63,54 @@ ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
-  ASTIdentifier* lvalue;
-  ASTExpression* rvalue;
+  struct ASTIdentifier* lvalue;
+  struct ASTExpression* rvalue;
 } ASTStatementAssignment;
 
 void ASTStatementAssignment_free(void* self);
-ASTStatementAssignment* ASTStatementAssignment_create(ASTIdentifier* lvalue, ASTExpression* rvalue, ASTInfo);
+ASTStatementAssignment* ASTStatementAssignment_create(struct ASTIdentifier* lvalue, struct ASTExpression* rvalue, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
-  ASTExpression* condition;
+  struct ASTExpression* condition;
   ASTStatement* if_block; // TODO Change to block ?
   ASTStatement* else_block;
 } ASTStatementCondition;
 
 void ASTStatementCondition_free(void* _self);
-ASTStatementCondition* ASTStatementCondition_create(ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block, ASTInfo);
+ASTStatementCondition* ASTStatementCondition_create(struct ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
-  ASTExpression* condition;
+  struct ASTExpression* condition;
   ASTStatement* content;
 } ASTStatementLoop;
 
 void ASTStatementLoop_free(void* _self);
-ASTStatementLoop* ASTStatementLoop_create(ASTExpression* cond, ASTStatement* content, ASTInfo);
+ASTStatementLoop* ASTStatementLoop_create(struct ASTExpression* cond, ASTStatement* content, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
-  ASTExpression* value;
+  struct ASTExpression* value;
 } ASTStatementReturn;
 
 void ASTStatementReturn_free(void* _self);
-ASTStatementReturn* ASTStatementReturn_create(ASTExpression* value, ASTInfo);
+ASTStatementReturn* ASTStatementReturn_create(struct ASTExpression* value, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
-  ASTExpression* value;
+  struct ASTExpression* value;
 } ASTStatementWrite;
 
 void ASTStatementWrite_free(void* _self);
-ASTStatementWrite* ASTStatementWrite_create(ASTExpression*, ASTInfo);
+ASTStatementWrite* ASTStatementWrite_create(struct ASTExpression*, ASTInfo);
 
 typedef struct {
   ASTStatement statement;
-  ASTIdentifier* ref;
+  struct ASTIdentifier* ref;
 } ASTStatementRead;
 
 void ASTStatementRead_free(void* _self);
-ASTStatementRead* ASTStatementRead_create(ASTIdentifier*, ASTInfo);
+ASTStatementRead* ASTStatementRead_create(struct ASTIdentifier*, ASTInfo);
 
 #endif

@@ -3,16 +3,18 @@
 
 #include <stddef.h>
 #include "ASTProgram.h"
-#include "ASTExpression.h"
+#include "ASTStatement.h"
 #include "ASTDeclaration.h"
+#include "ASTExpression.h"
 #include "AST.h"
 
-#define FUNC 0
-#define VAR 1
+struct ASTBlock;
+struct ASTDeclarationFunction;
+struct ASTIdentifier;
 
 typedef struct {
-  ASTIdentifier* identifier;
-  ASTNode* reference;
+  struct ASTIdentifier* identifier;
+  struct _ASTNode* reference;
 } SymbolItem;
 
 typedef struct _SymbolList {
@@ -26,11 +28,13 @@ typedef struct _SymbolList {
 } SymbolList;
 
 SymbolItem* SymbolList_get(SymbolList*, const unsigned int);
-size_t SymbolList_add(SymbolList*, ASTIdentifier*, ASTNode*);
+size_t SymbolList_add(SymbolList*, struct ASTIdentifier*, ASTNode*);
 void SymbolList_free(SymbolList*);
-int SymbolList_exist(SymbolList*, ASTIdentifier*);
-int SymbolList_new(SymbolList*, ASTIdentifier*, ASTNode*);
+int SymbolList_exist(SymbolList*, struct ASTIdentifier*);
+int SymbolList_new(SymbolList*, struct ASTIdentifier*, ASTNode*);
 SymbolList* SymbolList_create(SymbolList*);
-SymbolList* SymbolList_init(ASTProgram* program);
+SymbolList* SymbolList_block_create(SymbolList*, struct ASTBlock*);
+SymbolList* SymbolList_function_create(SymbolList*, struct ASTDeclarationFunction*);
+SymbolList* SymbolList_init(ASTProgram*);
 
 #endif

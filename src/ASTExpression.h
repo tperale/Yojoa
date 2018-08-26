@@ -6,6 +6,7 @@
 #define __EXPRESSION_H__
 
 #include "AST.h"
+#include "Symbols.h"
 #include "ArrayList.h"
 
 //       +-------------------------------+
@@ -43,7 +44,7 @@
 /**
  * @brief Base data structure used for expressions.
  */
-typedef struct {
+typedef struct ASTExpression {
   ASTNode node;
 } ASTExpression;
 
@@ -77,7 +78,7 @@ typedef struct {
 void ASTOperator_free(void* _self);
 ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, int operator_token, ASTInfo);
 
-typedef struct {
+typedef struct ASTIdentifier {
   ASTExpression expression;
   char* value;
 } ASTIdentifier;

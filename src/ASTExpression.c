@@ -12,6 +12,12 @@
 //   ASTExpression expression;
 //   int value;
 // } ASTInteger;
+void ASTInteger_check(SymbolList* list, ASTNode* _self) {
+  (void)(list);
+  (void)(_self);
+  return;
+}
+
 char* ASTInteger_code_gen(void* _self) {
   ASTInteger* self = (ASTInteger*) _self;
 
@@ -31,6 +37,7 @@ ASTInteger* ASTInteger_create(int value, ASTInfo info) {
   result->value = value;
   result->expression.node.free = ASTInteger_free;
   result->expression.node.code_gen = ASTInteger_code_gen;
+  result->expression.node.check = ASTInteger_check;
   result->expression.node.info = info;
   return result;
 }
@@ -39,6 +46,12 @@ ASTInteger* ASTInteger_create(int value, ASTInfo info) {
 //   ASTExpression expression;
 //   char value;
 // } ASTChar;
+void ASTChar_check(SymbolList* list, ASTNode* _self) {
+  (void)(list);
+  (void)(_self);
+  return;
+}
+
 char* ASTChar_code_gen(void* _self) {
   ASTChar* self = (ASTChar*) _self;
 
@@ -56,6 +69,7 @@ ASTChar* ASTChar_create(char value, ASTInfo info) {
   result->value = value;
   result->expression.node.free = ASTChar_free;
   result->expression.node.code_gen = ASTChar_code_gen;
+  result->expression.node.check = ASTChar_check;
   result->expression.node.info = info;
   return result;
 }
@@ -64,6 +78,12 @@ ASTChar* ASTChar_create(char value, ASTInfo info) {
 //   ASTExpression expression;
 //   char* value;
 // } ASTString;
+void ASTString_check(SymbolList* list, ASTNode* _self) {
+  (void)(list);
+  (void)(_self);
+  return;
+}
+
 char* ASTString_code_gen(void* _self) {
   ASTString* self = (ASTString*) _self;
 
@@ -84,6 +104,7 @@ ASTString* ASTString_create(char* value, ASTInfo info) {
   result->value = value;
   result->expression.node.free = ASTString_free;
   result->expression.node.code_gen = ASTString_code_gen;
+  result->expression.node.check = ASTString_check;
   result->expression.node.info = info;
   return result;
 }
@@ -94,6 +115,13 @@ ASTString* ASTString_create(char* value, ASTInfo info) {
 //   ASTExpression* rvalue;
 //   Operator_t operator_token;
 // } ASTOperator;
+void ASTOperator_check(SymbolList* list, ASTNode* _self) {
+  ASTOperator* self = (ASTOperator*) _self;
+
+  ((ASTNode*) self->lvalue)->check(list, (ASTNode*) self->lvalue);
+  ((ASTNode*) self->rvalue)->check(list, (ASTNode*) self->rvalue);
+}
+
 char* ASTOperator_code_gen(void* _self) {
   ASTOperator* self = (ASTOperator*) _self;
 
@@ -151,6 +179,7 @@ ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, in
   result->operator_token = operator_token;
   result->expression.node.free = ASTOperator_free;
   result->expression.node.code_gen = ASTOperator_code_gen;
+  result->expression.node.check = ASTOperator_check;
   result->expression.node.info = info;
   return result;
 }
@@ -158,6 +187,15 @@ ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, in
 // typedef struct {
 //   char value[64];
 // } ASTIdentifier;
+void ASTIdentifier_check(SymbolList* list, ASTNode* _self) {
+  ASTIdentifier* self = (ASTIdentifier*) _self;
+
+  SymbolList_exist(list, self);
+  if (!SymbolList_exist(list, self)) {
+    fprintf(stderr,"[%d] Error: Variable name '%s' is not defined\n", _self->info.source_line, self->value);
+  }
+}
+
 int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y) {
   return strcmp(x->value, y->value) == 0;
 }
@@ -183,6 +221,7 @@ ASTIdentifier* ASTIdentifier_create(char* value, ASTInfo info) {
   result->value = value;
   result->expression.node.free = ASTIdentifier_free;
   result->expression.node.code_gen = ASTIdentifier_code_gen;
+  result->expression.node.check = ASTIdentifier_check;
   result->expression.node.info = info;
   return result;
 }
@@ -192,6 +231,14 @@ ASTIdentifier* ASTIdentifier_create(char* value, ASTInfo info) {
 //   ASTIdentifier* name;
 //   ArrayList* arguments;
 // } ASTFunctionCall;
+void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
+  ASTFunctionCall* self = (ASTFunctionCall*) _self;
+
+  if (!SymbolList_exist(list, self->name)) {
+    fprintf(stderr,"[%d] Error: Function name '%s' is not defined\n", _self->info.source_line, self->name->value);
+  }
+}
+
 char* ASTFunctionCall_code_gen(void* _self) {
   ASTFunctionCall* self = (ASTFunctionCall*) _self;
 
@@ -226,6 +273,7 @@ ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* argument
   result->arguments = arguments;
   result->expression.node.free = ASTFunctionCall_free;
   result->expression.node.code_gen = ASTFunctionCall_code_gen;
+  result->expression.node.check = ASTFunctionCall_check;
   result->expression.node.info = info;
   return result;
 }
