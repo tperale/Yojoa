@@ -4,11 +4,11 @@
 
 #define ARRAY_LIST_BASE_SIZE 32
 
-static void* ArrayList_get(ArrayList* self, const unsigned int index) {
-  return (void*) self->content[index];
+static ASTNode* ArrayList_get(ArrayList* self, const unsigned int index) {
+  return self->content[index];
 }
 
-static size_t ArrayList_add(ArrayList* self, void* item) {
+static size_t ArrayList_add(ArrayList* self, ASTNode* item) {
   if (self->size >= self->_max_size) {
     self->_max_size *= 2;
     self->content = realloc(self->content, self->_max_size * self->_item_size);

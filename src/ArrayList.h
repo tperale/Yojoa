@@ -6,16 +6,17 @@
 #define __ARRAYLIST_H__
 
 #include <stddef.h>
+#include "AST.h"
 
 typedef struct ArrayList {
-  void** content;
+  ASTNode** content;
   size_t size;
   size_t _item_size;
   size_t _max_size;
-  void* (*get)(struct ArrayList*, const unsigned int);
+  ASTNode* (*get)(struct ArrayList*, const unsigned int);
   void (*remove)(struct ArrayList*, const unsigned int);
   void (*free)(struct ArrayList*);
-  size_t (*add)(struct ArrayList*, void*);
+  size_t (*add)(struct ArrayList*, ASTNode*);
   size_t (*add_list)(struct ArrayList*, struct ArrayList*);
 } ArrayList;
 
