@@ -116,6 +116,7 @@ ASTString* ASTString_create(char* value, ASTInfo info) {
 //   Operator_t operator_token;
 // } ASTOperator;
 void ASTOperator_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTOperator* self = (ASTOperator*) _self;
 
   ((ASTNode*) self->lvalue)->check(list, (ASTNode*) self->lvalue);
@@ -188,6 +189,7 @@ ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, in
 //   char value[64];
 // } ASTIdentifier;
 void ASTIdentifier_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTIdentifier* self = (ASTIdentifier*) _self;
 
   SymbolList_exist(list, self);
@@ -232,6 +234,7 @@ ASTIdentifier* ASTIdentifier_create(char* value, ASTInfo info) {
 //   ArrayList* arguments;
 // } ASTFunctionCall;
 void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTFunctionCall* self = (ASTFunctionCall*) _self;
 
   if (!SymbolList_exist(list, self->name)) {

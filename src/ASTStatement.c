@@ -7,6 +7,7 @@
 //   ArrayList* statements; // containing ASTStatement
 // } ASTBlock;
 void ASTBlock_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTBlock* self = (ASTBlock*) _self;
   SymbolList_block_create(list, self); // TODO Should return this or put yourself into children of "list"
 }
@@ -71,6 +72,7 @@ ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements, ASTInfo in
 //   ASTExpression* rvalue;
 // } ASTStatementAssignment;
 void ASTStatementAssignment_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
   ((ASTNode*) self->lvalue)->check(list, (ASTNode*) self->lvalue);
   ((ASTNode*) self->rvalue)->check(list, (ASTNode*) self->rvalue);
@@ -113,6 +115,7 @@ ASTStatementAssignment* ASTStatementAssignment_create(struct ASTIdentifier* lval
 //   ASTBlock* else_block;
 // } ASTStatementCondition;
 void ASTStatementCondition_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTStatementCondition* self = (ASTStatementCondition*) _self;
   ((ASTNode*) self->condition)->check(list, (ASTNode*) self->condition);
   if (self->else_block) {
@@ -161,6 +164,7 @@ ASTStatementCondition* ASTStatementCondition_create(struct ASTExpression* cond, 
 //   ASTBlock* content;
 // } ASTStatementLoop;
 void ASTStatementLoop_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTStatementLoop* self = (ASTStatementLoop*) _self;
   ((ASTNode*) self->condition)->check(list, (ASTNode*) self->condition);
   ((ASTNode*) self->content)->check(list, (ASTNode*) self->content);
@@ -201,6 +205,7 @@ ASTStatementLoop* ASTStatementLoop_create(struct ASTExpression* cond, ASTStateme
 //   ASTExpression* value;
 // } ASTStatementReturn;
 void ASTStatementReturn_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTStatementReturn* self = (ASTStatementReturn*) _self;
 
   ((ASTNode*) self->value)->check(list, (ASTNode*) self->value);
@@ -239,6 +244,7 @@ ASTStatementReturn* ASTStatementReturn_create(struct ASTExpression* value, ASTIn
 //   ASTExpression* value;
 // } ASTStatementWrite;
 void ASTStatementWrite_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTStatementWrite* self = (ASTStatementWrite*) _self;
   ((ASTNode*) self->value)->check(list, (ASTNode*) self->value);
 }
@@ -273,6 +279,7 @@ ASTStatementWrite* ASTStatementWrite_create(struct ASTExpression* value, ASTInfo
 //   ASTIdentifier* ref;
 // } ASTStatementRead;
 void ASTStatementRead_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
   ASTStatementRead* self = (ASTStatementRead*) _self;
   ((ASTNode*) self->ref)->check(list, (ASTNode*) self->ref);
 }

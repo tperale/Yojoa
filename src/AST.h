@@ -50,6 +50,7 @@
 //      +-------------------+
 
 typedef int ASTType;
+struct _SymbolList;
 
 typedef enum {
   bMINUS,
@@ -89,8 +90,6 @@ typedef struct {
   ASTType_t type;
 } ASTInfo;
 
-struct _SymbolList;
-
 /**
  * @brief The most basic expression structure.
  */
@@ -100,6 +99,7 @@ typedef struct _ASTNode {
   char* (*code_gen)(void*);
   void (*check)(struct _SymbolList*, struct _ASTNode*);
   char* code;
+  struct _SymbolList* scope;
 } ASTNode;
 
 #endif
