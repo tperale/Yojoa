@@ -22,7 +22,7 @@ char* ASTDeclarationVariable_code_gen(ASTNode* _self) {
   if (_self->info.type == ASTVARIABLE_DECLARATION) {
     asprintf(&((ASTNode*) self)->code, "(local $%s %s)", name, type);
   } else {
-    asprintf(&((ASTNode*) self)->code, "(global $%s (mut %s))", name, type);
+    asprintf(&((ASTNode*) self)->code, "(global $%s (mut %s) (i32.const 0))", name, type);
   }
 
   free(type);

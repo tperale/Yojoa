@@ -81,9 +81,17 @@ void ASTStatementAssignment_check(SymbolList* list, ASTNode* _self) {
 char* ASTStatementAssignment_code_gen(ASTNode* _self) {
   ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
 
-  // TODO link with the symtable
   char* scope;
-  asprintf(&scope, "set_local");
+  switch (SymbolList_exist(_self->scope, self->lvalue)->info.type) {
+    case ASTVARIABLE_DECLARATION:
+      asprintf(&scope, "set_local");
+      break;
+    case  ASTVARIABLE_GLOBAL:
+      asprintf(&scope, "set_global");
+      break;
+    default:
+      print_error(_self->info.source_line, "Should not happen");
+  }
 
   asprintf(&(_self->code), "(%s $%s %s)", scope, self->lvalue->value, ((ASTNode*) self->rvalue)->code_gen((ASTNode*) self->rvalue));
   free(scope);

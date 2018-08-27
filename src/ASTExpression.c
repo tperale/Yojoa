@@ -232,9 +232,20 @@ int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y) {
 char* ASTIdentifier_code_gen(ASTNode* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
 
-  // TODO link with the symtable
-  asprintf(&(_self->code), "(get_local $%s)", self->value);
+  char* scope;
+  switch (SymbolList_exist(_self->scope, self)->info.type) {
+    case ASTVARIABLE_DECLARATION:
+      asprintf(&scope, "get_local");
+      break;
+    case  ASTVARIABLE_GLOBAL:
+      asprintf(&scope, "get_global");
+      break;
+    default:
+      print_error(_self->info.source_line, "Should not happen");
+  }
 
+  asprintf(&(_self->code), "(%s $%s)", scope, self->value);
+  free(scope);
   return _self->code;
 }
 
@@ -272,6 +283,10 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
   ASTDeclarationFunction* func = (ASTDeclarationFunction*) _func;
   if (func->parameters->size != self->arguments->size) {
     print_error(_self->info.source_line, "There is no function '%s' with %d arguments defined", self->name->value, self->arguments->size);
+  }
+
+  for (unsigned int i = 0; i < self->arguments->size; ++i) {
+    self->arguments->content[i]->check(list, self->arguments->content[i]);
   }
 
   for (unsigned int i = 0; i < func->parameters->size; ++i) {
