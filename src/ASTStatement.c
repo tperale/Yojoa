@@ -82,8 +82,11 @@ char* ASTStatementAssignment_code_gen(void* _self) {
   ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
 
   // TODO link with the symtable
-  asprintf(&((ASTNode*) self)->code, "(set_local $%s %s)", self->lvalue->value, ((ASTNode*) self->rvalue)->code_gen(self->rvalue));
+  char* scope;
+  asprintf(scope, "set_local");
 
+  asprintf(&((ASTNode*) self)->code, "(%s $%s %s)", scope, self->lvalue->value, ((ASTNode*) self->rvalue)->code_gen(self->rvalue));
+  free(scope);
   return ((ASTNode*) self)->code;
 }
 

@@ -15,18 +15,17 @@ char* ASTDeclarationVariable_code_gen(void* _self) {
 
   char* type;
   // TODO if (self->type == INT) {
-    asprintf(&type, "i32");
   // }
-
-  char* scope;
-  // TODO
-  asprintf(&scope, "local");
+  asprintf(&type, "i32");
 
   char* name = self->name->value;
-  asprintf(&((ASTNode*) self)->code, "(%s $%s %s)", scope, name, type);
-  free(type);
-  free(scope);
+  if (((ASTNode*) self)->info.type == ASTVARIABLE_DECLARATION) {
+    asprintf(&((ASTNode*) self)->code, "(local $%s %s)", name, type);
+  } else {
+    asprintf(&((ASTNode*) self)->code, "(global $%s (mut %s))", name, type);
+  }
 
+  free(type);
   return ((ASTNode*) self)->code;
 }
 
