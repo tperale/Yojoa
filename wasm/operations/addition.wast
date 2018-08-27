@@ -1,5 +1,4 @@
 (module
-  (global $b i32)
   ;; Classical version of addition in wast
   (func $addition (param $x i32) (param $y i32) (result i32)
     get_local $x
@@ -17,9 +16,8 @@
   (func $addition3 (result i32)
     (local $a i32)
     (set_local $a (i32.const 2))
-    (set_global $b (i32.const 3))
     (i32.add
-      (get_global $b)
+      (i32.const 3)
       (i32.const 4)
     )
   )
