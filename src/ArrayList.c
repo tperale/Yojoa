@@ -19,7 +19,6 @@ static size_t ArrayList_add(ArrayList* self, ASTNode* item) {
 }
 
 static size_t ArrayList_addlist(ArrayList* self, ArrayList* other) {
-  // TODO verification same content size
   for (unsigned int i = 0; i < other->size; ++i) {
     ArrayList_add(self, ArrayList_get(other, i));
   }

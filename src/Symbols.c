@@ -96,7 +96,6 @@ SymbolList* SymbolList_function_create(SymbolList* parent, struct ASTDeclaration
   }
 
   SymbolList_block_create(list, function->block);
-  // TODO add to children
   return list;
 }
 
@@ -110,7 +109,6 @@ SymbolList* SymbolList_init(ASTProgram* program) {
         ASTDeclarationFunction* func = (ASTDeclarationFunction*) decls[i];
         SymbolList_new(list, func->name->name, (ASTNode*) func);
         SymbolList_function_create(list, func);
-        // TODO add to childrens
         break;
       }
       case ASTVARIABLE_GLOBAL:
