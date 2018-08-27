@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "ASTProgram.h"
+#include "AST.h"
 #include "Symbols.h"
 
 extern ASTProgram* program_struct;
@@ -15,6 +16,6 @@ int main(void) {
     return 1;
   }
   SymbolList_init(program_struct);
-  printf("%s\n", ASTProgram_code_gen(program_struct));
+  printf("%s\n", ASTProgram_code_gen((ASTNode*) program_struct));
   return 0;
 }

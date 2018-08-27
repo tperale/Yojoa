@@ -18,15 +18,15 @@ void ASTInteger_check(SymbolList* list, ASTNode* _self) {
   return;
 }
 
-char* ASTInteger_code_gen(void* _self) {
+char* ASTInteger_code_gen(ASTNode* _self) {
   ASTInteger* self = (ASTInteger*) _self;
 
-  asprintf(&((ASTNode*) self)->code, "(i32.const %i)", self->value);
+  asprintf(&(_self->code), "(i32.const %i)", self->value);
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTInteger_free(void* _self) {
+void ASTInteger_free(ASTNode* _self) {
   ASTInteger* self = (ASTInteger*) _self;
   if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
@@ -52,13 +52,13 @@ void ASTChar_check(SymbolList* list, ASTNode* _self) {
   return;
 }
 
-char* ASTChar_code_gen(void* _self) {
-  ASTChar* self = (ASTChar*) _self;
+char* ASTChar_code_gen(ASTNode* _self) {
+  // ASTChar* self = (ASTChar*) _self;
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTChar_free(void* _self) {
+void ASTChar_free(ASTNode* _self) {
   ASTChar* self = (ASTChar*) _self;
   if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
@@ -84,15 +84,15 @@ void ASTString_check(SymbolList* list, ASTNode* _self) {
   return;
 }
 
-char* ASTString_code_gen(void* _self) {
+char* ASTString_code_gen(ASTNode* _self) {
   ASTString* self = (ASTString*) _self;
 
-  asprintf(&((ASTNode*) self)->code, "%s", self->value);
+  asprintf(&(_self->code), "%s", self->value);
 
   return ((ASTNode*) self)->code;
 }
 
-void ASTString_free(void* _self) {
+void ASTString_free(ASTNode* _self) {
   ASTString* self = (ASTString*) _self;
   free(self->value);
   if (self->expression.node.code) { free(self->expression.node.code); }
@@ -150,7 +150,7 @@ void ASTOperator_check(SymbolList* list, ASTNode* _self) {
   // TODO Handle the special case for "==" and "!-" which could be done with char.
 }
 
-char* ASTOperator_code_gen(void* _self) {
+char* ASTOperator_code_gen(ASTNode* _self) {
   ASTOperator* self = (ASTOperator*) _self;
 
   char* operator;
@@ -180,22 +180,22 @@ char* ASTOperator_code_gen(void* _self) {
       asprintf(&operator, "i32.lt_s");
       break;
     case uMINUS:
-      asprintf(&((ASTNode*) self)->code, "(i32.neg %s)", ((ASTNode*) self->lvalue)->code_gen(self->lvalue));
-      return ((ASTNode*) self)->code;
+      asprintf(&(_self->code), "(i32.neg %s)", ((ASTNode*) self->lvalue)->code_gen((ASTNode*) self->lvalue));
+      return _self->code;
     case uNOT:
-      asprintf(&((ASTNode*) self)->code, "(i32.eq %s (i32.const 0))", ((ASTNode*) self->lvalue)->code_gen(self->lvalue));
-      return ((ASTNode*) self)->code;
+      asprintf(&(_self->code), "(i32.eq %s (i32.const 0))", ((ASTNode*) self->lvalue)->code_gen((ASTNode*) self->lvalue));
+      return _self->code;
   }
 
-  asprintf(&((ASTNode*) self)->code, "(%s %s %s)", operator, ((ASTNode*) self->lvalue)->code_gen(self->lvalue), ((ASTNode*) self->rvalue)->code_gen(self->rvalue));
+  asprintf(&(_self->code), "(%s %s %s)", operator, ((ASTNode*) self->lvalue)->code_gen((ASTNode*) self->lvalue), ((ASTNode*) self->rvalue)->code_gen((ASTNode*) self->rvalue));
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTOperator_free(void* _self) {
+void ASTOperator_free(ASTNode* _self) {
   ASTOperator* self = (ASTOperator*) _self;
-  ((ASTNode*) self->lvalue)->free(self->lvalue);
-  if (self->rvalue) ((ASTNode*) self->rvalue)->free(self->rvalue);
+  ((ASTNode*) self->lvalue)->free((ASTNode*) self->lvalue);
+  if (self->rvalue) ((ASTNode*) self->rvalue)->free((ASTNode*) self->rvalue);
   if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);
 }
@@ -229,16 +229,16 @@ int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y) {
   return strcmp(x->value, y->value) == 0;
 }
 
-char* ASTIdentifier_code_gen(void* _self) {
+char* ASTIdentifier_code_gen(ASTNode* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
 
   // TODO link with the symtable
-  asprintf(&((ASTNode*) self)->code, "(get_local $%s)", self->value);
+  asprintf(&(_self->code), "(get_local $%s)", self->value);
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTIdentifier_free(void* _self) {
+void ASTIdentifier_free(ASTNode* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
   free(self->value);
   if (self->expression.node.code) { free(self->expression.node.code); }
@@ -309,7 +309,7 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
   }
 }
 
-char* ASTFunctionCall_code_gen(void* _self) {
+char* ASTFunctionCall_code_gen(ASTNode* _self) {
   ASTFunctionCall* self = (ASTFunctionCall*) _self;
 
   char* arguments;
@@ -323,15 +323,15 @@ char* ASTFunctionCall_code_gen(void* _self) {
     free(buffer);
   }
 
-  asprintf(&((ASTNode*) self)->code, "(call $%s %s)", self->name->value, arguments);
+  asprintf(&(_self->code), "(call $%s %s)", self->name->value, arguments);
   free(arguments);
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTFunctionCall_free(void* _self) {
+void ASTFunctionCall_free(ASTNode* _self) {
   ASTFunctionCall* self = (ASTFunctionCall*) _self;
-  ASTIdentifier_free(self->name);
+  ASTIdentifier_free((ASTNode*) self->name);
   self->arguments->free(self->arguments);
   if (self->expression.node.code) { free(self->expression.node.code); }
   free(self);

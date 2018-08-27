@@ -10,7 +10,7 @@
  *   ASTIdentifier* name;
  * } ASTDeclarationVariable;
 */
-char* ASTDeclarationVariable_code_gen(void* _self) {
+char* ASTDeclarationVariable_code_gen(ASTNode* _self) {
   ASTDeclarationVariable* self = (ASTDeclarationVariable*) _self;
 
   char* type;
@@ -19,7 +19,7 @@ char* ASTDeclarationVariable_code_gen(void* _self) {
   asprintf(&type, "i32");
 
   char* name = self->name->value;
-  if (((ASTNode*) self)->info.type == ASTVARIABLE_DECLARATION) {
+  if (_self->info.type == ASTVARIABLE_DECLARATION) {
     asprintf(&((ASTNode*) self)->code, "(local $%s %s)", name, type);
   } else {
     asprintf(&((ASTNode*) self)->code, "(global $%s (mut %s))", name, type);
@@ -29,9 +29,9 @@ char* ASTDeclarationVariable_code_gen(void* _self) {
   return ((ASTNode*) self)->code;
 }
 
-void ASTDeclarationVariable_free(void* _self) {
+void ASTDeclarationVariable_free(ASTNode* _self) {
   ASTDeclarationVariable* self = (ASTDeclarationVariable*) _self;
-  ASTIdentifier_free(self->name);
+  ASTIdentifier_free((ASTNode*) self->name);
   if (self->declaration.node.code) { free(self->declaration.node.code); }
   free(self);
 }
@@ -57,7 +57,7 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType_t type, struct AST
  *   ASTBlock block;
  * } ASTDeclarationFunction;
  */
-char* ASTDeclarationFunction_code_gen(void* _self) {
+char* ASTDeclarationFunction_code_gen(ASTNode* _self) {
   ASTDeclarationFunction* self = (ASTDeclarationFunction*) _self;
 
   char* arguments;
@@ -76,11 +76,11 @@ char* ASTDeclarationFunction_code_gen(void* _self) {
   return ((ASTNode*) self)->code;
 }
 
-void ASTDeclarationFunction_free(void* _self) {
+void ASTDeclarationFunction_free(ASTNode* _self) {
   ASTDeclarationFunction* self = (ASTDeclarationFunction*) _self;
-  ASTDeclarationVariable_free(self->name);
+  ASTDeclarationVariable_free((ASTNode*) self->name);
   self->parameters->free(self->parameters);
-  ASTBlock_free(self->block);
+  ASTBlock_free((ASTNode*) self->block);
   if (self->declaration.node.code) { free(self->declaration.node.code); }
   free(self);
 }

@@ -12,7 +12,7 @@ void ASTBlock_check(SymbolList* list, ASTNode* _self) {
   SymbolList_block_create(list, self); // TODO Should return this or put yourself into children of "list"
 }
 
-char* ASTBlock_code_gen(void* _self) {
+char* ASTBlock_code_gen(ASTNode* _self) {
   ASTBlock* self = (ASTBlock*) _self;
 
   char* variables;
@@ -44,7 +44,7 @@ char* ASTBlock_code_gen(void* _self) {
   return ((ASTNode*) self)->code;
 }
 
-void ASTBlock_free(void* _self) {
+void ASTBlock_free(ASTNode* _self) {
   ASTBlock* self = (ASTBlock*) _self;
   self->variables->free(self->variables);
   self->statements->free(self->statements);
@@ -78,23 +78,23 @@ void ASTStatementAssignment_check(SymbolList* list, ASTNode* _self) {
   ((ASTNode*) self->rvalue)->check(list, (ASTNode*) self->rvalue);
 }
 
-char* ASTStatementAssignment_code_gen(void* _self) {
+char* ASTStatementAssignment_code_gen(ASTNode* _self) {
   ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
 
   // TODO link with the symtable
   char* scope;
-  asprintf(scope, "set_local");
+  asprintf(&scope, "set_local");
 
-  asprintf(&((ASTNode*) self)->code, "(%s $%s %s)", scope, self->lvalue->value, ((ASTNode*) self->rvalue)->code_gen(self->rvalue));
+  asprintf(&(_self->code), "(%s $%s %s)", scope, self->lvalue->value, ((ASTNode*) self->rvalue)->code_gen((ASTNode*) self->rvalue));
   free(scope);
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTStatementAssignment_free(void* _self) {
+void ASTStatementAssignment_free(ASTNode* _self) {
   ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
 
-  ASTIdentifier_free(self->lvalue);
-  ((ASTNode*) self->rvalue)->free(self->rvalue);
+  ASTIdentifier_free((ASTNode*) self->lvalue);
+  ((ASTNode*) self->rvalue)->free((ASTNode*) self->rvalue);
   free(self);
 }
 
@@ -126,23 +126,23 @@ void ASTStatementCondition_check(SymbolList* list, ASTNode* _self) {
   }
 }
 
-char* ASTStatementCondition_code_gen(void* _self) {
+char* ASTStatementCondition_code_gen(ASTNode* _self) {
   ASTStatementCondition* self = (ASTStatementCondition*) _self;
 
-  char* condition_code = ((ASTNode*) self->condition)->code_gen(self->condition);
-  char* if_code = ((ASTNode*) self->if_block)->code_gen(self->if_block);
-  char* else_code = self->else_block ? ((ASTNode*) self->else_block)->code_gen(self->else_block) : "";
+  char* condition_code = ((ASTNode*) self->condition)->code_gen((ASTNode*) self->condition);
+  char* if_code = ((ASTNode*) self->if_block)->code_gen((ASTNode*) self->if_block);
+  char* else_code = self->else_block ? ((ASTNode*) self->else_block)->code_gen((ASTNode*) self->else_block) : "";
   asprintf(&((ASTNode*) self)->code, "%s(if (then %s)(else %s))", condition_code, if_code, else_code);
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTStatementCondition_free(void* _self) {
+void ASTStatementCondition_free(ASTNode* _self) {
   ASTStatementCondition* self = (ASTStatementCondition*) _self;
 
-  ((ASTNode*) self->condition)->free(self->condition);
-  ASTBlock_free(self->if_block);
-  if (self->else_block) ASTBlock_free(self->else_block);
+  ((ASTNode*) self->condition)->free((ASTNode*) self->condition);
+  ASTBlock_free((ASTNode*) self->if_block);
+  if (self->else_block) ASTBlock_free((ASTNode*) self->else_block);
   free(self);
 }
 
@@ -173,18 +173,18 @@ void ASTStatementLoop_check(SymbolList* list, ASTNode* _self) {
   ((ASTNode*) self->content)->check(list, (ASTNode*) self->content);
 }
 
-char* ASTStatementLoop_code_gen(void* _self) {
+char* ASTStatementLoop_code_gen(ASTNode* _self) {
   ASTStatementLoop* self = (ASTStatementLoop*) _self;
-  char* condition_code = ((ASTNode*) self->condition)->code_gen(self->condition);
-  char* content = ((ASTNode*) self->content)->code_gen(self->content);
-  asprintf(&((ASTNode*) self)->code, "(block (loop (br_if 1 (i32.eq %s (i32.const 0))) %s (br 0)))", condition_code, content);
-  return ((ASTNode*) self)->code;
+  char* condition_code = ((ASTNode*) self->condition)->code_gen((ASTNode*) self->condition);
+  char* content = ((ASTNode*) self->content)->code_gen((ASTNode*) self->content);
+  asprintf(&(_self->code), "(block (loop (br_if 1 (i32.eq %s (i32.const 0))) %s (br 0)))", condition_code, content);
+  return _self->code;
 }
 
-void ASTStatementLoop_free(void* _self) {
+void ASTStatementLoop_free(ASTNode* _self) {
   ASTStatementLoop* self = (ASTStatementLoop*) _self;
-  ((ASTNode*) self->condition)->free(self->condition);
-  ASTBlock_free(self->content);
+  ((ASTNode*) self->condition)->free((ASTNode*) self->condition);
+  ASTBlock_free((ASTNode*) self->content);
   if (self->statement.node.code) { free(self->statement.node.code); }
   free(self);
 }
@@ -214,17 +214,17 @@ void ASTStatementReturn_check(SymbolList* list, ASTNode* _self) {
   ((ASTNode*) self->value)->check(list, (ASTNode*) self->value);
 }
 
-char* ASTStatementReturn_code_gen(void* _self) {
+char* ASTStatementReturn_code_gen(ASTNode* _self) {
   ASTStatementReturn* self = (ASTStatementReturn*) _self;
 
-  asprintf(&((ASTNode*) self)->code, "(return %s)", ((ASTNode*) self->value)->code_gen(self->value));
+  asprintf(&(_self->code), "(return %s)", ((ASTNode*) self->value)->code_gen((ASTNode*) self->value));
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTStatementReturn_free(void* _self) {
+void ASTStatementReturn_free(ASTNode* _self) {
   ASTStatementReturn* self = (ASTStatementReturn*) _self;
-  ((ASTNode*) self->value)->free(self->value);
+  ((ASTNode*) self->value)->free((ASTNode*) self->value);
   if (self->statement.node.code) { free(self->statement.node.code); }
   free(self);
 }
@@ -252,15 +252,15 @@ void ASTStatementWrite_check(SymbolList* list, ASTNode* _self) {
   ((ASTNode*) self->value)->check(list, (ASTNode*) self->value);
 }
 
-char* ASTStatementWrite_code_gen(void* _self) {
-  ASTStatementWrite* self = (ASTStatementWrite*) _self;
+char* ASTStatementWrite_code_gen(ASTNode* _self) {
+  // ASTStatementWrite* self = (ASTStatementWrite*) _self;
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTStatementWrite_free(void* _self) {
+void ASTStatementWrite_free(ASTNode* _self) {
   ASTStatementWrite* self = (ASTStatementWrite*) _self;
-  ((ASTNode*) self->value)->free(self->value);
+  ((ASTNode*) self->value)->free((ASTNode*) self->value);
   if (self->statement.node.code) { free(self->statement.node.code); }
   free(self);
 }
@@ -287,15 +287,15 @@ void ASTStatementRead_check(SymbolList* list, ASTNode* _self) {
   ((ASTNode*) self->ref)->check(list, (ASTNode*) self->ref);
 }
 
-char* ASTStatementRead_code_gen(void* _self) {
-  ASTStatementRead* self = (ASTStatementRead*) _self;
+char* ASTStatementRead_code_gen(ASTNode* _self) {
+  // ASTStatementRead* self = (ASTStatementRead*) _self;
   // TODO
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTStatementRead_free(void* _self) {
+void ASTStatementRead_free(ASTNode* _self) {
   ASTStatementRead* self = (ASTStatementRead*) _self;
-  ((ASTNode*) self->ref)->free(self->ref);
+  ((ASTNode*) self->ref)->free((ASTNode*) self->ref);
   if (self->statement.node.code) { free(self->statement.node.code); }
   free(self);
 }

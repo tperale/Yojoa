@@ -97,8 +97,8 @@ typedef struct {
  */
 typedef struct _ASTNode {
   ASTInfo info;
-  void (*free)(void*);
-  char* (*code_gen)(void*);
+  void (*free)(struct _ASTNode*);
+  char* (*code_gen)(struct _ASTNode*);
   void (*check)(struct _SymbolList*, struct _ASTNode*);
   char* code;
   struct _SymbolList* scope;

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-char* ASTProgram_code_gen(void* _self) {
+char* ASTProgram_code_gen(ASTNode* _self) {
   ASTProgram* self = (ASTProgram*) _self;
 
   char* program;
@@ -16,12 +16,12 @@ char* ASTProgram_code_gen(void* _self) {
     free(buffer);
   }
 
-  asprintf(&((ASTNode*) self)->code, "(module %s)", program);
+  asprintf(&(_self->code), "(module %s)", program);
 
-  return ((ASTNode*) self)->code;
+  return _self->code;
 }
 
-void ASTProgram_free(void* _self) {
+void ASTProgram_free(ASTNode* _self) {
   ASTProgram* self = (ASTProgram*) _self;
   if (self->node.code) { free(self->node.code); }
   free(self);

@@ -58,7 +58,7 @@ typedef struct ASTBlock {
   ArrayList* statements; // containing ASTStatement
 } ASTBlock;
 
-void ASTBlock_free(void*);
+void ASTBlock_free(ASTNode*);
 ASTBlock* ASTBlock_create(ArrayList* var_decl, ArrayList* statements, ASTInfo);
 
 typedef struct {
@@ -67,7 +67,7 @@ typedef struct {
   struct ASTExpression* rvalue;
 } ASTStatementAssignment;
 
-void ASTStatementAssignment_free(void* self);
+void ASTStatementAssignment_free(ASTNode* self);
 ASTStatementAssignment* ASTStatementAssignment_create(struct ASTIdentifier* lvalue, struct ASTExpression* rvalue, ASTInfo);
 
 typedef struct {
@@ -77,7 +77,7 @@ typedef struct {
   ASTStatement* else_block;
 } ASTStatementCondition;
 
-void ASTStatementCondition_free(void* _self);
+void ASTStatementCondition_free(ASTNode* _self);
 ASTStatementCondition* ASTStatementCondition_create(struct ASTExpression* cond, ASTStatement* if_block, ASTStatement* else_block, ASTInfo);
 
 typedef struct {
@@ -86,7 +86,7 @@ typedef struct {
   ASTStatement* content;
 } ASTStatementLoop;
 
-void ASTStatementLoop_free(void* _self);
+void ASTStatementLoop_free(ASTNode* _self);
 ASTStatementLoop* ASTStatementLoop_create(struct ASTExpression* cond, ASTStatement* content, ASTInfo);
 
 typedef struct {
@@ -94,7 +94,7 @@ typedef struct {
   struct ASTExpression* value;
 } ASTStatementReturn;
 
-void ASTStatementReturn_free(void* _self);
+void ASTStatementReturn_free(ASTNode* _self);
 ASTStatementReturn* ASTStatementReturn_create(struct ASTExpression* value, ASTInfo);
 
 typedef struct {
@@ -102,7 +102,7 @@ typedef struct {
   struct ASTExpression* value;
 } ASTStatementWrite;
 
-void ASTStatementWrite_free(void* _self);
+void ASTStatementWrite_free(ASTNode* _self);
 ASTStatementWrite* ASTStatementWrite_create(struct ASTExpression*, ASTInfo);
 
 typedef struct {
@@ -110,7 +110,7 @@ typedef struct {
   struct ASTIdentifier* ref;
 } ASTStatementRead;
 
-void ASTStatementRead_free(void* _self);
+void ASTStatementRead_free(ASTNode* _self);
 ASTStatementRead* ASTStatementRead_create(struct ASTIdentifier*, ASTInfo);
 
 #endif

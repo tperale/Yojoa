@@ -9,7 +9,8 @@ typedef struct {
   ArrayList* decl;
 } ASTProgram;
 
-char* ASTProgram_code_gen(void* _self);
+char* ASTProgram_code_gen(ASTNode* _self);
+void ASTProgram_free(ASTNode* _self);
 ASTProgram* ASTProgram_create(ArrayList*);
 
 #endif
