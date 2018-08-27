@@ -113,6 +113,7 @@ SymbolList* SymbolList_init(ASTProgram* program) {
         // TODO add to childrens
         break;
       }
+      case ASTVARIABLE_GLOBAL:
       case ASTVARIABLE_DECLARATION: {
         ;
         ASTDeclarationVariable* var = (ASTDeclarationVariable*) decls[i];

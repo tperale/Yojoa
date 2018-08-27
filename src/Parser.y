@@ -96,7 +96,7 @@ declarations
 
 declaration
     : fun_declaration             { $$ = (ASTDeclaration*) $1; }
-    | var_declaration             { $$ = (ASTDeclaration*) $1; }
+    | var_declaration             { $$ = (ASTDeclaration*) $1; ((ASTNode*) $1)->info.type = ASTVARIABLE_GLOBAL; }
     ;
 
 fun_declaration                   //
