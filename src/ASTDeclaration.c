@@ -36,7 +36,7 @@ void ASTDeclarationVariable_free(ASTNode* _self) {
   free(self);
 }
 
-ASTDeclarationVariable* ASTDeclarationVariable_create(ASTType_t type, struct ASTIdentifier* name, ASTInfo info) {
+ASTDeclarationVariable* ASTDeclarationVariable_create(ASTTypePrimitive_t type, struct ASTIdentifier* name, ASTInfo info) {
   ASTDeclarationVariable* result = malloc(sizeof(ASTDeclarationVariable));
 
   result->type = type;

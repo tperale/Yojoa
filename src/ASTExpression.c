@@ -122,14 +122,14 @@ static void _ASTOperator_check_return_type(SymbolList* list, ASTNode* x) {
       break;
     case ASTFUNCTIONCALL: {
       ASTDeclarationFunction* tmp = (ASTDeclarationFunction*) SymbolList_exist(list, ((ASTFunctionCall*) x)->name);
-      if (tmp->name->type != ASTINTEGER) {
+      if (tmp->name->type.type != ASTINTEGER) {
         print_error(x->info.source_line, "Invalid return type for function '%s', expected an integer", tmp->name->name->value);
       }
       break;
     }
     case ASTVARIABLE: {
       ASTDeclarationVariable* tmp = (ASTDeclarationVariable*) SymbolList_exist(list, (ASTIdentifier*) x);
-      if (tmp->type != ASTINTEGER) {
+      if (tmp->type.type != ASTINTEGER) {
         print_error(x->info.source_line, "Invalid variable type for '%s', expected an integer ", tmp->name->value);
       }
       break;
@@ -291,7 +291,7 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
 
   for (unsigned int i = 0; i < func->parameters->size; ++i) {
     ASTDeclarationVariable* current_param = (ASTDeclarationVariable*) func->parameters->content[i];
-    ASTType_t param_type = current_param->type == ASTINTEGER ? ASTINTEGER : ASTCHAR;
+    ASTType_t param_type = current_param->type.type == ASTINTEGER ? ASTINTEGER : ASTCHAR;
     switch (self->arguments->content[i]->info.type) {
       case ASTCHAR:
         if (param_type != ASTCHAR) {
@@ -306,14 +306,14 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
         continue;
       case ASTFUNCTIONCALL: {
         ASTDeclarationFunction* tmp = (ASTDeclarationFunction*) SymbolList_exist(list, ((ASTFunctionCall*) self->arguments->content[i])->name);
-        if (tmp->name->type != param_type) {
+        if (tmp->name->type.type != param_type) {
           print_error(_self->info.source_line, "Invalid return type for function '%s' in argument number %d", tmp->name->name->value, i);
         }
         continue;
       }
       case ASTVARIABLE: {
         ASTDeclarationVariable* tmp = (ASTDeclarationVariable*) SymbolList_exist(list, (ASTIdentifier*) self->arguments->content[i]);
-        if (tmp->type != param_type) {
+        if (tmp->type.type != param_type) {
           print_error(_self->info.source_line, "Invalid type for the variable '%s' in argument number %d", tmp->name->value, i);
         }
         continue;

@@ -7,7 +7,6 @@
 //   ArrayList* statements; // containing ASTStatement
 // } ASTBlock;
 void ASTBlock_check(SymbolList* list, ASTNode* _self) {
-  _self->scope = list;
   ASTBlock* self = (ASTBlock*) _self;
   SymbolList_block_create(list, self);
 }

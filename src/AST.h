@@ -51,6 +51,7 @@
 
 typedef int ASTType;
 struct _SymbolList;
+struct _ASTNode;
 
 typedef enum {
   bMINUS,
@@ -86,6 +87,11 @@ typedef enum {
   ASTREAD,
   ASTVARIABLE,
 } ASTType_t;
+
+typedef struct {
+  ASTType_t type;
+  struct _ASTNode* exp;
+} ASTTypePrimitive_t;
 
 typedef struct {
   int source_line;

@@ -36,6 +36,7 @@ SymbolList* symbols;
   ASTExpression* expression;
   ASTIdentifier* identifier;
   ArrayList* array;
+  ASTTypePrimitive_t type_struct_decl;
   ASTType type_decl;
   Operator_t operator;
   int token;
@@ -71,7 +72,8 @@ SymbolList* symbols;
 %type <block> block
 %type <expression> exp
 %type <identifier> lexp var
-%type <type_decl> type
+%type <type_struct_decl> type
+%type <type_decl> type_primitive
 %type <operator> binop unop
 
 /**
@@ -127,10 +129,13 @@ var_identifier                    // A simple way to identify combination of var
     ;
 
 type                              // Their are only two primitive data types (char, int) and the composed data types
+    : type_primitive { $$ = (ASTTypePrimitive_t) { $1, NULL }; }
+		| type_primitive LBRACK exp RBRACK { $$ = (ASTTypePrimitive_t) { $1, (ASTNode*) $3 }; } // array type (eg: int[4])
+		;
+
+type_primitive
 		: INT  { $$ = (ASTType_t) ASTINTEGER; }
 		| CHAR { $$ = (ASTType_t) ASTCHAR; }
-		/* | type LBRACK exp RBRACK // array type (eg: int[4]) */
-		;
 
 statements                        // Statements express how multiple statement need to be combined
 		:                                { $$ = ArrayList_create(sizeof(ASTStatement*)); } // or no statement

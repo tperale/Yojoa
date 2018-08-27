@@ -66,6 +66,8 @@ SymbolList* SymbolList_block_create(SymbolList* parent, struct ASTBlock* block) 
   SymbolList* list = SymbolList_create(parent);
   SymbolList_children_add(parent, list);
 
+  ((ASTNode*) block)->scope = list;
+
   ASTDeclarationVariable** variables = (ASTDeclarationVariable**) block->variables->content;
   for (unsigned int i = 0; i < block->variables->size; ++i) {
     ASTNode* node = (ASTNode*) variables[i];
@@ -86,6 +88,8 @@ SymbolList* SymbolList_block_create(SymbolList* parent, struct ASTBlock* block) 
 SymbolList* SymbolList_function_create(SymbolList* parent, struct ASTDeclarationFunction* function) {
   SymbolList* list = SymbolList_create(parent);
   SymbolList_children_add(parent, list);
+
+  ((ASTNode*) function)->scope = list;
 
   ASTDeclarationVariable** variables = (ASTDeclarationVariable**) function->parameters->content;
   for (unsigned int i = 0; i < function->parameters->size; ++i) {
