@@ -88,6 +88,7 @@ typedef enum {
   ASTWRITE,
   ASTREAD,
   ASTVARIABLE,
+  ASTLENGTH,
 } ASTType_t;
 
 typedef struct {

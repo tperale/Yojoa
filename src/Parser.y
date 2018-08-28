@@ -164,7 +164,7 @@ exp
 		| LPAR exp RPAR       { $$ = $2; }                                                // (eg: (foo))
 		| NUMBER              { $$ = (ASTExpression*) ASTInteger_create($1, (ASTInfo) {yylineno, ASTINTEGER}); }            // (eg: 2)
 		| QCHAR               { $$ = (ASTExpression*) ASTChar_create($1, (ASTInfo) {yylineno, ASTCHAR}); }               // Just a charachter (eg: 'c')
-		// TODO | LENGTH lexp	        { }                                                 // size of an array (eg: length foo)
+		| LENGTH lexp	        { $$ = (ASTExpression*) ASTLength_create($2, (ASTInfo) {yylineno, ASTLENGTH}); }                                                 // size of an array (eg: length foo)
 		;
 
 lexp                              // left expression are either a variable name or variable name array access

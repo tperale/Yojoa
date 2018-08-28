@@ -1,0 +1,5 @@
+int[6] foo;
+
+int tiny() {
+  return length foo;
+}

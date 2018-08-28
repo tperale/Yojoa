@@ -387,3 +387,47 @@ ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* argument
   result->expression.node.info = info;
   return result;
 }
+
+// typedef struct {
+//   ASTExpression expression;
+//   ASTIdentifier* reference;
+// } ASTLength;
+void ASTLength_check(SymbolList* list, ASTNode* _self) {
+  _self->scope = list;
+  ASTLength* self = (ASTLength*) _self;
+
+  ASTDeclarationVariable* decl = (ASTDeclarationVariable*) SymbolList_exist(_self->scope, self->reference);
+  if (!decl) {
+    print_error(_self->info.source_line, "No reference to '%s'", self->reference->value);
+  }
+
+  if (decl->type.length == 0) {
+    print_error(_self->info.source_line, "Can't get length because '%s' is not an array", self->reference->value);
+  }
+}
+
+char* ASTLength_code_gen(ASTNode* _self) {
+  ASTLength* self = (ASTLength*) _self;
+  ASTDeclarationVariable* decl = (ASTDeclarationVariable*) SymbolList_exist(_self->scope, self->reference);
+
+  asprintf(&(_self->code), "(i32.const %ld)", decl->type.length);
+  return _self->code;
+}
+
+void ASTLength_free(ASTNode* _self) {
+  ASTLength* self = (ASTLength*) _self;
+  ASTIdentifier_free((ASTNode*) self->reference);
+  if (self->expression.node.code) { free(self->expression.node.code); }
+  free(self);
+}
+
+ASTLength* ASTLength_create(ASTIdentifier* ref, ASTInfo info) {
+  ASTLength* result = malloc(sizeof(ASTLength));
+  result->reference = ref;
+  result->expression.node.free = ASTLength_free;
+  result->expression.node.code_gen = ASTLength_code_gen;
+  result->expression.node.check = ASTLength_check;
+  result->expression.node.info = info;
+
+  return result;
+}

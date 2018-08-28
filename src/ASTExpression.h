@@ -97,5 +97,10 @@ typedef struct {
 void ASTFunctionCall_free(ASTNode* _self);
 ASTFunctionCall* ASTFunctionCall_create(ASTIdentifier* name, ArrayList* arguments, ASTInfo);
 
-// TODO ASTArrayAccessor for array type (eg: <varname>[<number>] or for array declaration int[4])
+typedef struct {
+  ASTExpression expression;
+  ASTIdentifier* reference;
+} ASTLength;
+void ASTLength_free(ASTNode* _self);
+ASTLength* ASTLength_create(ASTIdentifier* ref, ASTInfo);
 #endif
