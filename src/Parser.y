@@ -68,7 +68,7 @@ SymbolList* symbols;
 %type <prog> program
 %type <decl> declaration
 %type <fun_decl> fun_declaration
-%type <var_decl> var_declaration var_identifier
+%type <var_decl> var_declaration var_identifier param_identifier
 %type <statement> statement
 %type <array> formal_pars var_declarations statements pars declarations
 %type <block> block
@@ -107,11 +107,15 @@ fun_declaration                   //
 	  : var_identifier LPAR formal_pars RPAR block { $$ = ASTDeclarationFunction_create($1, $3, $5, (ASTInfo) {yylineno, ASTFUNCTION}); }
 		;
 
-formal_pars                            // formal_pars is the declaration of arguments in parentheses
-		:                                  { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
-    | var_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (ASTNode*) $1); } // a simple declaration
-    | formal_pars COMMA var_identifier { $1->add($$, (ASTNode*) $3); } // Can be either multiple declaration separated by commas
+formal_pars                              // formal_pars is the declaration of arguments in parentheses
+		:                                    { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); } // or no declaration
+    | param_identifier                   { $$ = ArrayList_create(sizeof(ASTDeclarationVariable*)); $$->add($$, (ASTNode*) $1); } // a simple declaration
+    | formal_pars COMMA param_identifier { $1->add($$, (ASTNode*) $3); } // Can be either multiple declaration separated by commas
 		;
+
+param_identifier
+    : type var { $$ = ASTDeclarationVariable_create($1, $2, (ASTInfo) {yylineno, ASTVARIABLE_PARAM}); }
+    ;
 
 block                                           // The content of a function, if, while. Variable declarations are always done on the top of the block (eg. { int foo; })
 		: LBRACE var_declarations statements RBRACE { $$ = ASTBlock_create($2, $3, (ASTInfo) {yylineno, ASTBLOCK}); }

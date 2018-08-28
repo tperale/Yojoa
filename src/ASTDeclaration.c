@@ -41,7 +41,7 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(ASTTypePrimitive_t type, s
   static int global_memory_offset = 0; // This static variable get incremented for each creation call for an array.
   ASTDeclarationVariable* result = malloc(sizeof(ASTDeclarationVariable));
 
-  if (type.length) {
+  if (info.type != ASTVARIABLE_PARAM && type.length) {
     result->memory_offset = global_memory_offset;
     global_memory_offset += (type.length * 4);
   }

@@ -225,7 +225,7 @@ void ASTIdentifier_check(SymbolList* list, ASTNode* _self) {
   }
 
   ASTDeclarationVariable* decl = (ASTDeclarationVariable*) ref;
-  if (decl->type.length) {
+  if (self->is_assignment && decl->type.length && !(self->is_array)) {
     print_error(_self->info.source_line, "'%s' is trying to access a array reference without deferencing", self->value);
   }
 
@@ -247,14 +247,22 @@ int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y) {
 
 char* ASTIdentifier_code_gen(ASTNode* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
+  ASTDeclarationVariable* decl = (ASTDeclarationVariable*) SymbolList_exist(_self->scope, self);
 
   if (self->is_array) {
-    ASTDeclarationVariable* decl = (ASTDeclarationVariable*) SymbolList_exist(_self->scope, self);
-    if (self->is_assignment) {
-      asprintf(&(_self->code), "(i32.store offset=%d (i32.const %d) ", self->offset * 4, decl->memory_offset); // The end need to be finished by the assignement code gen function
+    char* offset;
+    if (((ASTNode*) decl)->info.type == ASTVARIABLE_PARAM) {
+      asprintf(&offset, "(get_local $%s)", decl->name->value);
     } else {
-      asprintf(&(_self->code), "(i32.load offset=%d (i32.const %d))", self->offset * 4, decl->memory_offset);
+      asprintf(&offset, "(i32.const %d)", decl->memory_offset);
     }
+    if (self->is_assignment) {
+      asprintf(&(_self->code), "(i32.store offset=%d %s ", self->offset * 4, offset); // The end need to be finished by the assignement code gen function
+    } else {
+      asprintf(&(_self->code), "(i32.load offset=%d %s)", self->offset * 4, offset);
+    }
+  } else if (decl->type.length) {
+    asprintf(&(_self->code), "(i32.const %d)", decl->memory_offset); // The end need to be finished by the assignement code gen function
   } else {
     char* scope;
     switch (SymbolList_exist(_self->scope, self)->info.type) {
