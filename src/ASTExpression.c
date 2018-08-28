@@ -224,9 +224,13 @@ void ASTIdentifier_check(SymbolList* list, ASTNode* _self) {
     print_error(_self->info.source_line, "Variable name '%s' is not defined", self->value);
   }
 
+  ASTDeclarationVariable* decl = (ASTDeclarationVariable*) ref;
+  if (decl->type.length) {
+    print_error(_self->info.source_line, "'%s' is trying to access a array reference without deferencing", self->value);
+  }
+
   if (self->is_array) {
     if ((ref->info.type == ASTVARIABLE_DECLARATION || ref->info.type == ASTVARIABLE_GLOBAL)) {
-      ASTDeclarationVariable* decl = (ASTDeclarationVariable*) ref;
       if (decl->type.length == 0) {
         print_error(_self->info.source_line, "'%s' is trying to access a non array reference", self->value);
       }
