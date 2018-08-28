@@ -250,8 +250,10 @@ char* ASTIdentifier_code_gen(ASTNode* _self) {
   ASTDeclarationVariable* decl = (ASTDeclarationVariable*) SymbolList_exist(_self->scope, self);
 
   if (self->is_array) {
+    // If our param is a lvalue deferencing an array.
     char* offset;
     if (((ASTNode*) decl)->info.type == ASTVARIABLE_PARAM) {
+      // The potential case of pointer to array in parameter.
       asprintf(&offset, "(get_local $%s)", decl->name->value);
     } else {
       asprintf(&offset, "(i32.const %d)", decl->memory_offset);
@@ -262,6 +264,7 @@ char* ASTIdentifier_code_gen(ASTNode* _self) {
       asprintf(&(_self->code), "(i32.load offset=%d %s)", self->offset * 4, offset);
     }
   } else if (decl->type.length) {
+    // If we refer to a param that have an array size but not defined in memory (parameter for instance)
     asprintf(&(_self->code), "(i32.const %d)", decl->memory_offset); // The end need to be finished by the assignement code gen function
   } else {
     char* scope;
@@ -327,6 +330,8 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
     ASTDeclarationVariable* current_param = (ASTDeclarationVariable*) func->parameters->content[i];
     if (current_param->type.length && (current_param->type.length != ((ASTDeclarationVariable*) SymbolList_exist(list, (ASTIdentifier*) self->arguments->content[i]))->type.length)) {
       // Case with an array param
+      // TODO potential segfault with the "cast" we should take more precaution but also be clear about what we expect with parameters.
+      // TODO for example we could just pass another reference and it will fail
       print_error(_self->info.source_line, "Not matching array size. Expected size %d", current_param->type.length);
     }
     ASTType_t param_type = current_param->type.type == ASTINTEGER ? ASTINTEGER : ASTCHAR;
