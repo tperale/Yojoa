@@ -134,6 +134,7 @@ void ASTStatementCondition_check(SymbolList* list, ASTNode* _self) {
   _self->scope = list;
   ASTStatementCondition* self = (ASTStatementCondition*) _self;
   ((ASTNode*) self->condition)->check(list, (ASTNode*) self->condition);
+  ((ASTNode*) self->if_block)->check(list, (ASTNode*) self->if_block);
   if (self->else_block) {
     ((ASTNode*) self->else_block)->check(list, (ASTNode*) self->else_block);
   }
