@@ -16,7 +16,7 @@ char* ASTProgram_code_gen(ASTNode* _self) {
     free(buffer);
   }
 
-  asprintf(&(_self->code), "(module %s)", program);
+  asprintf(&(_self->code), "(module (memory $memory (data \"0\")) %s)", program);
 
   return _self->code;
 }
