@@ -247,9 +247,9 @@ char* ASTIdentifier_code_gen(ASTNode* _self) {
   if (self->is_array) {
     ASTDeclarationVariable* decl = (ASTDeclarationVariable*) SymbolList_exist(_self->scope, self);
     if (self->is_assignment) {
-      asprintf(&(_self->code), "(i32.store offset=%d (i32.const %d) ", self->offset, decl->memory_offset); // The end need to be finished by the assignement code gen function
+      asprintf(&(_self->code), "(i32.store offset=%d (i32.const %d) ", self->offset * 4, decl->memory_offset); // The end need to be finished by the assignement code gen function
     } else {
-      asprintf(&(_self->code), "(i32.load offset=%d (i32.const %d))", self->offset, decl->memory_offset);
+      asprintf(&(_self->code), "(i32.load offset=%d (i32.const %d))", self->offset * 4, decl->memory_offset);
     }
   } else {
     char* scope;

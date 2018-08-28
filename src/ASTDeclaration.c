@@ -13,20 +13,21 @@
 char* ASTDeclarationVariable_code_gen(ASTNode* _self) {
   ASTDeclarationVariable* self = (ASTDeclarationVariable*) _self;
 
-  char* type;
-  // TODO if (self->type == INT) {
-  // }
-  asprintf(&type, "i32");
+  if (self->type.length == 0) {
+    char* type;
+    asprintf(&type, "i32");
 
-  char* name = self->name->value;
-  if (_self->info.type == ASTVARIABLE_DECLARATION) {
-    asprintf(&((ASTNode*) self)->code, "(local $%s %s)", name, type);
+    char* name = self->name->value;
+    if (_self->info.type == ASTVARIABLE_DECLARATION) {
+      asprintf(&((ASTNode*) self)->code, "(local $%s %s)", name, type);
+    } else {
+      asprintf(&((ASTNode*) self)->code, "(global $%s (mut %s) (i32.const 0))", name, type);
+    }
+    free(type);
+    return ((ASTNode*) self)->code;
   } else {
-    asprintf(&((ASTNode*) self)->code, "(global $%s (mut %s) (i32.const 0))", name, type);
+    return "";
   }
-
-  free(type);
-  return ((ASTNode*) self)->code;
 }
 
 void ASTDeclarationVariable_free(ASTNode* _self) {
@@ -42,7 +43,7 @@ ASTDeclarationVariable* ASTDeclarationVariable_create(ASTTypePrimitive_t type, s
 
   if (type.length) {
     result->memory_offset = global_memory_offset;
-    global_memory_offset += type.length * 4;
+    global_memory_offset += (type.length * 4);
   }
 
   result->type = type;

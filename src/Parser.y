@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include "AST.h"
 #include "ASTDeclaration.h"
 #include "ASTStatement.h"
@@ -12,6 +13,7 @@ extern int yylex();
 extern int yylineno;
 void yyerror(const char *str) {
   fprintf(stderr,"[%d] Error: %s\n", yylineno, str);
+  exit(0);
 }
 
 ASTProgram* program_struct;
@@ -130,7 +132,7 @@ var_identifier                    // A simple way to identify combination of var
 
 type                              // Their are only two primitive data types (char, int) and the composed data types
     : type_primitive { $$ = (ASTTypePrimitive_t) { $1, 0 }; }
-		| type_primitive LBRACK NUMBER RBRACK { $$ = (ASTTypePrimitive_t) { $1, $3 }; } // array type (eg: int[4])
+		| type_primitive LBRACK NUMBER RBRACK { if ($3 == 0) { yyerror("Can't create 0 length array"); } else { $$ = (ASTTypePrimitive_t) { $1, $3 }; } } // array type (eg: int[4])
 		;
 
 type_primitive
