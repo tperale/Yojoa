@@ -87,6 +87,7 @@ char* ASTStatementAssignment_code_gen(ASTNode* _self) {
     // TODO part of this should maybe be in the identifier code gen function
     char* scope;
     switch (SymbolList_exist(_self->scope, self->lvalue)->info.type) {
+      case ASTVARIABLE_PARAM:
       case ASTVARIABLE_DECLARATION:
         asprintf(&scope, "set_local");
         break;

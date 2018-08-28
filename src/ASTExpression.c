@@ -267,6 +267,7 @@ char* ASTIdentifier_code_gen(ASTNode* _self) {
     char* scope;
     switch (SymbolList_exist(_self->scope, self)->info.type) {
       case ASTVARIABLE_DECLARATION:
+      case ASTVARIABLE_PARAM:
         asprintf(&scope, "get_local");
         break;
       case  ASTVARIABLE_GLOBAL:
@@ -324,6 +325,10 @@ void ASTFunctionCall_check(SymbolList* list, ASTNode* _self) {
 
   for (unsigned int i = 0; i < func->parameters->size; ++i) {
     ASTDeclarationVariable* current_param = (ASTDeclarationVariable*) func->parameters->content[i];
+    if (current_param->type.length && (current_param->type.length != ((ASTDeclarationVariable*) SymbolList_exist(list, (ASTIdentifier*) self->arguments->content[i]))->type.length)) {
+      // Case with an array param
+      print_error(_self->info.source_line, "Not matching array size. Expected size %d", current_param->type.length);
+    }
     ASTType_t param_type = current_param->type.type == ASTINTEGER ? ASTINTEGER : ASTCHAR;
     switch (self->arguments->content[i]->info.type) {
       case ASTCHAR:

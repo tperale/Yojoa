@@ -1,0 +1,12 @@
+int bar(int[2] param) {
+  param[1] = 1;
+  return 0;
+}
+
+int tiny(){
+  int[3] plop;
+  int[2] foo;
+  int ret;
+  ret = bar(plop);
+  return foo[1];
+}
