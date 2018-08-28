@@ -219,9 +219,21 @@ void ASTIdentifier_check(SymbolList* list, ASTNode* _self) {
   _self->scope = list;
   ASTIdentifier* self = (ASTIdentifier*) _self;
 
-  SymbolList_exist(list, self);
-  if (!SymbolList_exist(list, self)) {
+  ASTNode* ref;
+  if (!(ref = SymbolList_exist(list, self))) {
     print_error(_self->info.source_line, "Variable name '%s' is not defined", self->value);
+  }
+
+  if (self->is_array) {
+    if ((ref->info.type == ASTVARIABLE_DECLARATION || ref->info.type == ASTVARIABLE_GLOBAL)) {
+      ASTDeclarationVariable* decl = (ASTDeclarationVariable*) ref;
+      if (decl->type.length == 0) {
+        print_error(_self->info.source_line, "'%s' is trying to access a non array reference", self->value);
+      }
+      if (decl->type.length <= self->offset) {
+        print_error(_self->info.source_line, "'%s' reference is out of range (max length of %d)", self->value, decl->type.length);
+      }
+    }
   }
 }
 
@@ -232,20 +244,29 @@ int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y) {
 char* ASTIdentifier_code_gen(ASTNode* _self) {
   ASTIdentifier* self = (ASTIdentifier*) _self;
 
-  char* scope;
-  switch (SymbolList_exist(_self->scope, self)->info.type) {
-    case ASTVARIABLE_DECLARATION:
-      asprintf(&scope, "get_local");
-      break;
-    case  ASTVARIABLE_GLOBAL:
-      asprintf(&scope, "get_global");
-      break;
-    default:
-      print_error(_self->info.source_line, "Should not happen");
-  }
+  if (self->is_array) {
+    ASTDeclarationVariable* decl = (ASTDeclarationVariable*) SymbolList_exist(_self->scope, self);
+    if (self->is_assignment) {
+      asprintf(&(_self->code), "(i32.store offset=%d (i32.const %d) ", self->offset, decl->memory_offset); // The end need to be finished by the assignement code gen function
+    } else {
+      asprintf(&(_self->code), "(i32.load offset=%d (i32.const %d))", self->offset, decl->memory_offset);
+    }
+  } else {
+    char* scope;
+    switch (SymbolList_exist(_self->scope, self)->info.type) {
+      case ASTVARIABLE_DECLARATION:
+        asprintf(&scope, "get_local");
+        break;
+      case  ASTVARIABLE_GLOBAL:
+        asprintf(&scope, "get_global");
+        break;
+      default:
+        print_error(_self->info.source_line, "Should not happen");
+    }
 
-  asprintf(&(_self->code), "(%s $%s)", scope, self->value);
-  free(scope);
+    asprintf(&(_self->code), "(%s $%s)", scope, self->value);
+    free(scope);
+  }
   return _self->code;
 }
 

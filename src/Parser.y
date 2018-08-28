@@ -129,8 +129,8 @@ var_identifier                    // A simple way to identify combination of var
     ;
 
 type                              // Their are only two primitive data types (char, int) and the composed data types
-    : type_primitive { $$ = (ASTTypePrimitive_t) { $1, NULL }; }
-		| type_primitive LBRACK exp RBRACK { $$ = (ASTTypePrimitive_t) { $1, (ASTNode*) $3 }; } // array type (eg: int[4])
+    : type_primitive { $$ = (ASTTypePrimitive_t) { $1, 0 }; }
+		| type_primitive LBRACK NUMBER RBRACK { $$ = (ASTTypePrimitive_t) { $1, $3 }; } // array type (eg: int[4])
 		;
 
 type_primitive
@@ -147,7 +147,7 @@ statement                         // Statement express possible actions you can 
 	  : IF LPAR exp RPAR statement                 { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, NULL, (ASTInfo) {yylineno, ASTCONDITION}); }
 		| IF LPAR exp RPAR statement ELSE statement  { $$ = (ASTStatement*) ASTStatementCondition_create($3, $5, $7, (ASTInfo) {yylineno, ASTCONDITION}); }
 		| WHILE LPAR exp RPAR statement              { $$ = (ASTStatement*) ASTStatementLoop_create($3, $5, (ASTInfo) {yylineno, ASTLOOP}); }
-		| lexp ASSIGN exp SEMICOLON                  { $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3, (ASTInfo) {yylineno, ASTASSIGNMENT}); } // assignment
+		| lexp ASSIGN exp SEMICOLON                  { $1->is_assignment = 1; $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3, (ASTInfo) {yylineno, ASTASSIGNMENT}); } // assignment
 		| RETURN exp SEMICOLON                       { $$ = (ASTStatement*) ASTStatementReturn_create($2, (ASTInfo) {yylineno, ASTRETURN}); } // return statement
 		| block                                      { $$ = (ASTStatement*) $1; }
 		| WRITE exp                                  { $$ = (ASTStatement*) ASTStatementWrite_create($2, (ASTInfo) {yylineno, ASTWRITE}); }
@@ -166,8 +166,8 @@ exp
 		;
 
 lexp                              // left expression are either a variable name or variable name array access
-		: var     { $$ = $1; } // (eg: foo)
-		// TODO | lexp LBRACK exp RBRACK	// ex: foo[2]
+		: var                       { $$ = $1; } // (eg: foo)
+		| var LBRACK NUMBER RBRACK	{ $$ = $1; $1->offset = $3; $1->is_array = 1; } // ex: foo[2] TODO integer only for now but should support statically evaluable expressions also ?
 		;
 
 binop                           // List of the binary operators tokens

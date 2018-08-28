@@ -1,6 +1,8 @@
 #ifndef __AST_H__
 #define __AST_H__
 
+#include <stddef.h>
+
 //                                                                                                +-------------+
 //                                                                                                |             |
 //                                                                                                |    Node     |
@@ -90,7 +92,7 @@ typedef enum {
 
 typedef struct {
   ASTType_t type;
-  struct _ASTNode* exp;
+  size_t length;
 } ASTTypePrimitive_t;
 
 typedef struct {

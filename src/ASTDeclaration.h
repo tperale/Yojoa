@@ -39,6 +39,7 @@ typedef struct ASTDeclarationVariable {
   ASTDeclaration declaration;
   ASTTypePrimitive_t type;
   struct ASTIdentifier* name;
+  unsigned int memory_offset;
 } ASTDeclarationVariable;
 
 void ASTDeclarationVariable_free(ASTNode* self);

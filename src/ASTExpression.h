@@ -81,6 +81,9 @@ ASTOperator* ASTOperator_create(ASTExpression* lvalue, ASTExpression* rvalue, in
 typedef struct ASTIdentifier {
   ASTExpression expression;
   char* value;
+  int is_array;
+  int is_assignment;
+  unsigned int offset;
 } ASTIdentifier;
 int ASTIdentifier_equal(ASTIdentifier* x, ASTIdentifier* y);
 void ASTIdentifier_free(ASTNode* self);

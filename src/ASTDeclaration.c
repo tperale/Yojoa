@@ -37,7 +37,13 @@ void ASTDeclarationVariable_free(ASTNode* _self) {
 }
 
 ASTDeclarationVariable* ASTDeclarationVariable_create(ASTTypePrimitive_t type, struct ASTIdentifier* name, ASTInfo info) {
+  static int global_memory_offset = 0; // This static variable get incremented for each creation call for an array.
   ASTDeclarationVariable* result = malloc(sizeof(ASTDeclarationVariable));
+
+  if (type.length) {
+    result->memory_offset = global_memory_offset;
+    global_memory_offset += type.length * 4;
+  }
 
   result->type = type;
   result->name = name;

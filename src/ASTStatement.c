@@ -79,21 +79,27 @@ void ASTStatementAssignment_check(SymbolList* list, ASTNode* _self) {
 
 char* ASTStatementAssignment_code_gen(ASTNode* _self) {
   ASTStatementAssignment* self = (ASTStatementAssignment*) _self;
+  ASTIdentifier* lvalue = (ASTIdentifier*) self->lvalue;
 
-  char* scope;
-  switch (SymbolList_exist(_self->scope, self->lvalue)->info.type) {
-    case ASTVARIABLE_DECLARATION:
-      asprintf(&scope, "set_local");
-      break;
-    case  ASTVARIABLE_GLOBAL:
-      asprintf(&scope, "set_global");
-      break;
-    default:
-      print_error(_self->info.source_line, "Should not happen");
+  if (lvalue->is_array) {
+    asprintf(&(_self->code), "%s %s)", ((ASTNode*) self->lvalue)->code_gen((ASTNode*) self->lvalue), ((ASTNode*) self->rvalue)->code_gen((ASTNode*) self->rvalue));
+  } else {
+    // TODO part of this should maybe be in the identifier code gen function
+    char* scope;
+    switch (SymbolList_exist(_self->scope, self->lvalue)->info.type) {
+      case ASTVARIABLE_DECLARATION:
+        asprintf(&scope, "set_local");
+        break;
+      case  ASTVARIABLE_GLOBAL:
+        asprintf(&scope, "set_global");
+        break;
+      default:
+        print_error(_self->info.source_line, "Should not happen");
+    }
+
+    asprintf(&(_self->code), "(%s $%s %s)", scope, self->lvalue->value, ((ASTNode*) self->rvalue)->code_gen((ASTNode*) self->rvalue));
+    free(scope);
   }
-
-  asprintf(&(_self->code), "(%s $%s %s)", scope, self->lvalue->value, ((ASTNode*) self->rvalue)->code_gen((ASTNode*) self->rvalue));
-  free(scope);
   return _self->code;
 }
 
