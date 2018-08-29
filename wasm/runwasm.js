@@ -42,6 +42,13 @@ function loadWebAssembly(filename, imports) {
     if (!imports.env.table) {
       imports.env.table = new WebAssembly.Table({ initial: 0, element: 'anyfunc' })
     }
+    imports.console = {
+      write: function (byte) {
+        const { StringDecoder } = require('string_decoder');
+        var string = new StringDecoder('utf8').write(Buffer.from([byte]));
+        process.stdout.write(string);
+      }
+    }
     // Create the instance.
     return new WebAssembly.Instance(module, imports)
   })
