@@ -156,8 +156,8 @@ statement                         // Statement express possible actions you can 
 		| lexp ASSIGN exp SEMICOLON                  { $1->is_assignment = 1; $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3, (ASTInfo) {yylineno, ASTASSIGNMENT}); } // assignment
 		| RETURN exp SEMICOLON                       { $$ = (ASTStatement*) ASTStatementReturn_create($2, (ASTInfo) {yylineno, ASTRETURN}); } // return statement
 		| block                                      { $$ = (ASTStatement*) $1; }
-		| WRITE exp                                  { $$ = (ASTStatement*) ASTStatementWrite_create($2, (ASTInfo) {yylineno, ASTWRITE}); }
-		| READ lexp                                  { $$ = (ASTStatement*) ASTStatementRead_create($2, (ASTInfo) {yylineno, ASTREAD}); }
+		| WRITE exp SEMICOLON                        { $$ = (ASTStatement*) ASTStatementWrite_create($2, (ASTInfo) {yylineno, ASTWRITE}); }
+		| READ lexp SEMICOLON                        { $$ = (ASTStatement*) ASTStatementRead_create($2, (ASTInfo) {yylineno, ASTREAD}); }
 		;
 
 exp

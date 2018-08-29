@@ -53,8 +53,8 @@ void ASTChar_check(SymbolList* list, ASTNode* _self) {
 }
 
 char* ASTChar_code_gen(ASTNode* _self) {
-  // ASTChar* self = (ASTChar*) _self;
-
+  ASTChar* self = (ASTChar*) _self;
+  asprintf(&(_self->code), "(i32.const %d)", self->value);
   return _self->code;
 }
 
