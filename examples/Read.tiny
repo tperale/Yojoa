@@ -1,0 +1,11 @@
+int tiny() {
+  char[6] foo;
+  int i;
+  read foo;
+  i = 0;
+  while (i < 6) {
+    write foo[i];
+    i = i + 1;
+  }
+  return 0;
+}

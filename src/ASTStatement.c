@@ -299,12 +299,22 @@ ASTStatementWrite* ASTStatementWrite_create(struct ASTExpression* value, ASTInfo
 void ASTStatementRead_check(SymbolList* list, ASTNode* _self) {
   _self->scope = list;
   ASTStatementRead* self = (ASTStatementRead*) _self;
-  ((ASTNode*) self->ref)->check(list, (ASTNode*) self->ref);
+
+  ((ASTNode*) self->ref)->scope = list;
+  ASTNode* ref;
+  if (!(ref = SymbolList_exist(list, self->ref))) {
+    print_error(_self->info.source_line, "Variable name '%s' is not defined", self->ref->value);
+  }
+  ASTDeclarationVariable* decl = (ASTDeclarationVariable*) ref;
+  if (!decl->type.length) {
+    print_error(_self->info.source_line, "'%s' is not an array", self->ref->value);
+  }
 }
 
 char* ASTStatementRead_code_gen(ASTNode* _self) {
-  // ASTStatementRead* self = (ASTStatementRead*) _self;
-  // TODO
+  ASTStatementRead* self = (ASTStatementRead*) _self;
+  ASTDeclarationVariable* decl = (ASTDeclarationVariable*) SymbolList_exist(_self->scope, self->ref);
+  asprintf(&(_self->code), "(call $read %s (i32.const %ld))", ((ASTNode*) self->ref)->code_gen((ASTNode*) self->ref), decl->type.length);
   return _self->code;
 }
 

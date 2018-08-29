@@ -5,6 +5,7 @@
 
 const fs = require('fs'),
       assert = require('assert')
+const readlineSync = require('./readline-sync');
 
 assert('WebAssembly' in global,
         'WebAssembly global object not detected')
@@ -32,6 +33,7 @@ function loadWebAssembly(filename, imports) {
   .then(module => {
     // Create the imports for the module, including the
     // standard dynamic library imports
+
     imports = imports || {}
     imports.env = {
       memory: new WebAssembly.Memory({ initial: 256 }),
@@ -44,7 +46,11 @@ function loadWebAssembly(filename, imports) {
         process.stdout.write(string);
       },
       read: function (offset, length) {
-        const readline = require('readline');
+        const answer = readlineSync.question('');
+        const buf = Buffer.from(answer);
+        for (let i = 0; i < (length < buf.length ? length : buf.length); ++i) {
+          new Uint32Array(imports.env.memory.buffer)[offset + i] = buf[i];
+        }
       }
     }
     // Create the instance.
