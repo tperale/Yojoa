@@ -33,14 +33,19 @@ function loadWebAssembly(filename, imports) {
     // Create the imports for the module, including the
     // standard dynamic library imports
     imports = imports || {}
-    imports.env = imports.env || {}
-    imports.env.memoryBase = imports.env.memoryBase || 0
-    imports.env.tableBase = imports.env.tableBase || 0
-    if (!imports.env.memory) {
-      imports.env.memory = new WebAssembly.Memory({ initial: 256 })
-    }
-    if (!imports.env.table) {
-      imports.env.table = new WebAssembly.Table({ initial: 0, element: 'anyfunc' })
+    imports.env = {
+      memory: new WebAssembly.Memory({ initial: 256 }),
+      table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' })
+    };
+    imports.console = {
+      write: function (byte) {
+        const { StringDecoder } = require('string_decoder');
+        var string = new StringDecoder('utf8').write(Buffer.from([byte]));
+        process.stdout.write(string);
+      },
+      read: function (offset, length) {
+        const readline = require('readline');
+      }
     }
     // Create the instance.
     return new WebAssembly.Instance(module, imports)

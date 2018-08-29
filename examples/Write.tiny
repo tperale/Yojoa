@@ -1,0 +1,6 @@
+int tiny() {
+  char foo;
+  foo = 'c';
+  write foo;
+  return 0;
+}

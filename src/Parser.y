@@ -156,8 +156,8 @@ statement                         // Statement express possible actions you can 
 		| lexp ASSIGN exp SEMICOLON                  { $1->is_assignment = 1; $$ = (ASTStatement*) ASTStatementAssignment_create($1, $3, (ASTInfo) {yylineno, ASTASSIGNMENT}); } // assignment
 		| RETURN exp SEMICOLON                       { $$ = (ASTStatement*) ASTStatementReturn_create($2, (ASTInfo) {yylineno, ASTRETURN}); } // return statement
 		| block                                      { $$ = (ASTStatement*) $1; }
-		| WRITE exp                                  { $$ = (ASTStatement*) ASTStatementWrite_create($2, (ASTInfo) {yylineno, ASTWRITE}); }
-		| READ lexp                                  { $$ = (ASTStatement*) ASTStatementRead_create($2, (ASTInfo) {yylineno, ASTREAD}); }
+		| WRITE exp SEMICOLON                        { $$ = (ASTStatement*) ASTStatementWrite_create($2, (ASTInfo) {yylineno, ASTWRITE}); }
+		| READ lexp SEMICOLON                        { $$ = (ASTStatement*) ASTStatementRead_create($2, (ASTInfo) {yylineno, ASTREAD}); }
 		;
 
 exp
@@ -173,7 +173,7 @@ exp
 
 lexp                              // left expression are either a variable name or variable name array access
 		: var                       { $$ = $1; } // (eg: foo)
-		| var LBRACK NUMBER RBRACK	{ $$ = $1; $1->offset = $3; $1->is_array = 1; } // ex: foo[2] TODO integer only for now but should support statically evaluable expressions also ?
+		| var LBRACK exp RBRACK	{ $$ = $1; $1->offset = $3; $1->is_array = 1; } // ex: foo[2] TODO integer only for now but should support statically evaluable expressions also ?
 		;
 
 binop                           // List of the binary operators tokens

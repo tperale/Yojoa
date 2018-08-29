@@ -268,8 +268,8 @@ void ASTStatementWrite_check(SymbolList* list, ASTNode* _self) {
 }
 
 char* ASTStatementWrite_code_gen(ASTNode* _self) {
-  // ASTStatementWrite* self = (ASTStatementWrite*) _self;
-
+  ASTStatementWrite* self = (ASTStatementWrite*) _self;
+  asprintf(&(_self->code), "(call $write %s)", ((ASTNode*) self->value)->code_gen((ASTNode*) self->value));
   return _self->code;
 }
 
