@@ -16,7 +16,7 @@ char* ASTProgram_code_gen(ASTNode* _self) {
     free(buffer);
   }
 
-  asprintf(&(_self->code), "(module (import \"console\" \"write\" (func $write (param i32)))(memory $memory (data \"0\")) %s)", program);
+  asprintf(&(_self->code), "(module (import \"console\" \"write\" (func $write (param i32)))(import \"env\" \"memory\" (memory 256))(import \"env\" \"table\" (table 0 anyfunc))%s)", program);
 
   return _self->code;
 }
