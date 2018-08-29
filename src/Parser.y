@@ -173,7 +173,7 @@ exp
 
 lexp                              // left expression are either a variable name or variable name array access
 		: var                       { $$ = $1; } // (eg: foo)
-		| var LBRACK NUMBER RBRACK	{ $$ = $1; $1->offset = $3; $1->is_array = 1; } // ex: foo[2] TODO integer only for now but should support statically evaluable expressions also ?
+		| var LBRACK exp RBRACK	{ $$ = $1; $1->offset = $3; $1->is_array = 1; } // ex: foo[2] TODO integer only for now but should support statically evaluable expressions also ?
 		;
 
 binop                           // List of the binary operators tokens

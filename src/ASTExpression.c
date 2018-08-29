@@ -230,13 +230,14 @@ void ASTIdentifier_check(SymbolList* list, ASTNode* _self) {
   }
 
   if (self->is_array) {
+    ((ASTNode*) self->offset)->check(list, (ASTNode*) self->offset);
     if ((ref->info.type == ASTVARIABLE_DECLARATION || ref->info.type == ASTVARIABLE_GLOBAL)) {
       if (decl->type.length == 0) {
         print_error(_self->info.source_line, "'%s' is trying to access a non array reference", self->value);
       }
-      if (decl->type.length <= self->offset) {
-        print_error(_self->info.source_line, "'%s' reference is out of range (max length of %d)", self->value, decl->type.length);
-      }
+      // if (decl->type.length <= self->offset) {
+      //   print_error(_self->info.source_line, "'%s' reference is out of range (max length of %d)", self->value, decl->type.length);
+      // }
     }
   }
 }
@@ -251,18 +252,22 @@ char* ASTIdentifier_code_gen(ASTNode* _self) {
 
   if (self->is_array) {
     // If our param is a lvalue deferencing an array.
-    char* offset;
+    char* memory_offset;
     if (((ASTNode*) decl)->info.type == ASTVARIABLE_PARAM) {
       // The potential case of pointer to array in parameter.
-      asprintf(&offset, "(get_local $%s)", decl->name->value);
+      asprintf(&memory_offset, "(get_local $%s)", decl->name->value);
     } else {
-      asprintf(&offset, "(i32.const %d)", decl->memory_offset);
+      asprintf(&memory_offset, "(i32.const %d)", decl->memory_offset);
     }
+    char* array_offset;
+    asprintf(&array_offset, "(i32.mul %s (i32.const 4))", ((ASTNode*) self->offset)->code_gen((ASTNode*) self->offset));
     if (self->is_assignment) {
-      asprintf(&(_self->code), "(i32.store offset=%d %s ", self->offset * 4, offset); // The end need to be finished by the assignement code gen function
+      asprintf(&(_self->code), "(i32.store (i32.add %s %s) ", array_offset, memory_offset); // The end need to be finished by the assignement code gen function
     } else {
-      asprintf(&(_self->code), "(i32.load offset=%d %s)", self->offset * 4, offset);
+      asprintf(&(_self->code), "(i32.load (i32.add %s %s))", array_offset, memory_offset);
     }
+    free(memory_offset);
+    free(array_offset);
   } else if (decl->type.length) {
     // If we refer to a param that have an array size but not defined in memory (parameter for instance)
     asprintf(&(_self->code), "(i32.const %d)", decl->memory_offset); // The end need to be finished by the assignement code gen function
