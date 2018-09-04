@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cat $1 | ./src/tiny > /tmp/tiny.out
+wat2wasm /tmp/tiny.out -o out.wasm
+

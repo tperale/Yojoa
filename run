@@ -1,0 +1,3 @@
+#!/bin/bash
+
+node ./wasm/runwasm.js out.wasm tiny
