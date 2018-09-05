@@ -6,42 +6,6 @@
 #include "Symbols.h"
 #include "ArrayList.h"
 
-//                +------------------+--------------------+
-//                |                                       |
-//                |            Statement                  |
-//                |                                       |
-//                +------------------+--------------------+
-//                                   ^
-// +------------------------+        |
-// | Block                  |        |
-// | + var: VariableDecl[]  |        |
-// | + content: Statement[] |        |
-// |                        +--------+
-// +------------------------+        |
-//                                   |
-// +------------------------+        |
-// | Assignment             |        |
-// | + lvalue: Identifier   |        |
-// | + rvalue: Expression   +--------+
-// +------------------------+        |
-//      +-------------------+        |
-//      | Loop              |        |
-//      | + cond: Expression|        |
-//      | + content: Block  +--------+
-//      +-------------------+        |
-//                                   |
-//                                   |
-//      +-------------------+        |
-//      | Condition         |        |
-//      | + cond: Expression+--------+
-//      | | if: Block       |        |
-//      | + else: Block     |        |
-//      +-------------------+        |
-//      +-------------------+        |
-//      | Return            +--------+
-//      | + value: Expression
-//      +-------------------+
-
 struct ASTDeclarationVariable;
 struct ASTIdentifier;
 

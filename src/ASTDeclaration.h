@@ -6,25 +6,6 @@
 #include "ASTExpression.h"
 #include "ArrayList.h"
 
-//  +-------------+--------------+
-//  |                            |
-//  |         Declaration        |
-//  |                            |
-//  +-+--------------------------+
-//    ^           +-------------------------------------+
-//    |           | FunctionDeclaration                 |
-//    |           | + type: Identifier                  |
-//    |           | | name: Identifier                  |
-//    +-----------+ | parameters: VariableDeclaration[] |
-//    |           | + block: Block                      |
-//    |           +-------------------------------------+
-//    |
-//    |           +----------------------------+
-//    |           | VariableDeclaration        |
-//    |           | + type: Identifier         |
-//    +-----------+ + name: Identifier         |
-//                +----------------------------+
-
 struct ASTBlock;
 struct ASTIdentifier;
 
